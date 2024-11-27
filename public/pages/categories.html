@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categories</title>
+    <link rel="stylesheet" href="../css/styles-categories.css"> <!-- Certifique-se de que este caminho está correto -->
+    <style>
+        /* O CSS que você forneceu deve ser mantido aqui */
+    </style>
+</head>
+<body>
+    <header>
+        <h1>PDV System Dashboard</h1>
+        <nav>
+            <ul>
+                <li><a href="home.html">Home</a></li>
+                <li><a href="categories.html">Categories</a></li>
+                <li><a href="clients.html">Clients</a></li>
+                <li><a href="orders.html">Orders</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="users.html">Users</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="categories">
+            <h2>Categories</h2>
+            <div id="category-list">Loading categories...</div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 PDV System</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            async function fetchCategories() {
+                try {
+                    const response = await fetch('http://localhost:3333/categories'); // Ajuste a URL se necessário
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    const categories = await response.json();
+                    const categoryList = document.getElementById('category-list');
+
+                    // Limpa o conteúdo inicial
+                    categoryList.innerHTML = '';
+
+                    // Exibe as categorias na página, apenas com o nome
+                    categories.forEach(category => {
+                        const categoryDiv = document.createElement('div');
+                        categoryDiv.className = 'category-item';
+                        categoryDiv.innerHTML = `
+                            <h3>${category.description}</h3>
+                        `;
+                        categoryList.appendChild(categoryDiv);
+                    });
+                } catch (error) {
+                    console.error('Error fetching categories:', error);
+                    document.getElementById('category-list').textContent = 'Failed to load categories';
+                }
+            }
+
+            // Chama a função ao carregar a página
+            fetchCategories();
+        });
+    </script>
+</body>
+</html>
