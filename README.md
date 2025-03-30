@@ -128,15 +128,56 @@ npm run dev
 
 ## 📦 Deploy
 
-### Backend (Vercel)
-1. Conecte seu repositório na Vercel
-2. Configure as variáveis de ambiente
-3. Deploy automático
+### Estrutura do Projeto
+```
+Sale-Point/
+├── backend/           # API REST em Node.js/TypeScript
+│   ├── src/          # Código fonte do backend
+│   ├── migrations/   # Migrações do banco de dados
+│   └── sql/         # Scripts SQL
+│
+└── frontend/         # Interface em Next.js/React
+    ├── src/         # Código fonte do frontend
+    ├── public/      # Arquivos estáticos
+    └── components/  # Componentes React
+```
 
-### Frontend (Vercel)
+### Deploy na Vercel
+
 1. Conecte seu repositório na Vercel
-2. Configure as variáveis de ambiente
-3. Deploy automático
+2. Configure as variáveis de ambiente para cada projeto:
+
+#### Backend
+```env
+PORT=3333
+JWT_SECRET="seu_jwt_secret"
+HOST_EMAIL="seu_host_email"
+PORT_EMAIL=587
+USER_EMAIL="seu_user_email"
+PASS_EMAIL="sua_senha_email"
+DB_HOST="seu_host_supabase"
+DB_USER="postgres"
+DB_PASS="sua_senha_supabase"
+DB_NAME="postgres"
+DB_PORT=5432
+```
+
+#### Frontend
+```env
+NEXT_PUBLIC_API_URL=https://seu-backend.vercel.app
+NEXT_PUBLIC_SUPABASE_URL="sua_url_supabase"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="sua_chave_anonima_supabase"
+```
+
+3. Configure o Root Directory para cada projeto:
+   - Backend: `backend`
+   - Frontend: `frontend`
+
+4. Deploy automático
+
+### URLs de Produção
+- Backend: https://seu-backend.vercel.app
+- Frontend: https://seu-frontend.vercel.app
 
 ## 🔒 Segurança
 
