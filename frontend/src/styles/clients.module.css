@@ -1,0 +1,64 @@
+.modalOverlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50;
+}
+
+.modalContent {
+  @apply bg-white rounded-xl shadow-xl w-full max-w-[300px] max-h-[60vh] overflow-y-auto;
+}
+
+.modalHeader {
+  @apply flex justify-between items-center p-2 border-b border-gray-100;
+}
+
+.modalTitle {
+  @apply text-sm font-medium text-gray-900;
+}
+
+.modalCloseButton {
+  @apply text-gray-400 hover:text-gray-500 transition-colors duration-200;
+}
+
+.form {
+  @apply p-2 space-y-1;
+}
+
+.formGrid {
+  @apply grid grid-cols-1 gap-1;
+}
+
+.formGroup {
+  @apply space-y-0.5;
+}
+
+.formLabel {
+  @apply block text-xs font-medium text-gray-700;
+}
+
+.formInput {
+  @apply block w-full px-2 py-1 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary;
+}
+
+.formInput select {
+  @apply appearance-none bg-white pr-7;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 1.75rem;
+}
+
+.formActions {
+  @apply flex justify-end gap-2 p-2 border-t border-gray-100;
+}
+
+.buttonPrimary {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-1 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+}
+
+.buttonSecondary {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+}
+
+.deleteButton {
+  @apply text-red-500 hover:text-red-700 transition-colors duration-200 inline-flex items-center;
+} 

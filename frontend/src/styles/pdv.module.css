@@ -1,0 +1,163 @@
+.container {
+  @apply p-6;
+}
+
+.header {
+  @apply flex justify-between items-center mb-6;
+}
+
+.title {
+  @apply text-2xl font-bold text-gray-900;
+}
+
+.mainContent {
+  @apply grid grid-cols-1 lg:grid-cols-3 gap-6;
+}
+
+.productsSection {
+  @apply lg:col-span-2;
+}
+
+.searchInput {
+  @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary mb-4;
+}
+
+.productsGrid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4;
+}
+
+.productCard {
+  @apply bg-white rounded-lg shadow-md p-4 cursor-pointer hover:shadow-lg transition-shadow;
+}
+
+.productImage {
+  @apply w-full h-32 object-cover rounded-lg mb-2;
+}
+
+.productName {
+  @apply text-lg font-semibold text-gray-900 mb-1;
+}
+
+.productPrice {
+  @apply text-primary font-bold text-xl;
+}
+
+.cartSection {
+  @apply lg:col-span-1;
+}
+
+.cartCard {
+  @apply bg-white rounded-lg shadow-md p-6 sticky top-6;
+}
+
+.cartTitle {
+  @apply text-xl font-bold text-gray-900 mb-4;
+}
+
+.cartItems {
+  @apply space-y-4 mb-6;
+}
+
+.cartItem {
+  @apply flex items-center justify-between py-2 border-b;
+}
+
+.itemInfo {
+  @apply flex-1;
+}
+
+.itemName {
+  @apply font-medium text-gray-900;
+}
+
+.itemPrice {
+  @apply text-sm text-gray-500;
+}
+
+.itemQuantity {
+  @apply flex items-center gap-2;
+}
+
+.quantityButton {
+  @apply w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors;
+}
+
+.quantityInput {
+  @apply w-12 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary;
+}
+
+.removeButton {
+  @apply text-red-500 hover:text-red-700 transition-colors;
+}
+
+.cartSummary {
+  @apply border-t pt-4 mt-4;
+}
+
+.summaryRow {
+  @apply flex justify-between items-center mb-2;
+}
+
+.summaryLabel {
+  @apply text-gray-600;
+}
+
+.summaryValue {
+  @apply font-semibold;
+}
+
+.totalRow {
+  @apply flex justify-between items-center text-xl font-bold text-gray-900 mt-4 pt-4 border-t;
+}
+
+.checkoutButton {
+  @apply w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors mt-6;
+}
+
+.modalOverlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+}
+
+.modalContent {
+  @apply bg-white rounded-xl shadow-lg w-full max-w-md p-6;
+}
+
+.modalHeader {
+  @apply flex justify-between items-center mb-4;
+}
+
+.modalTitle {
+  @apply text-xl font-semibold text-gray-900;
+}
+
+.modalCloseButton {
+  @apply text-gray-400 hover:text-gray-500;
+}
+
+.form {
+  @apply space-y-4;
+}
+
+.formGroup {
+  @apply space-y-2;
+}
+
+.formLabel {
+  @apply block text-sm font-medium text-gray-700;
+}
+
+.formInput {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary;
+}
+
+.formActions {
+  @apply flex justify-end gap-4 mt-6;
+}
+
+.buttonSecondary {
+  @apply px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors;
+}
+
+.buttonPrimary {
+  @apply px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors;
+} 

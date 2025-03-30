@@ -1,0 +1,102 @@
+/* app/dashboard/categories/categories.module.css */
+
+/* Container principal */
+.container {
+  @apply p-6;
+}
+
+/* Header */
+.header {
+  @apply flex justify-between items-center mb-6;
+}
+
+.title {
+  @apply text-2xl font-bold text-gray-900;
+}
+
+/* Botões */
+.buttonPrimary {
+  @apply inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+}
+
+.buttonSecondary {
+  @apply inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+}
+
+/* Tabela */
+.tableContainer {
+  @apply bg-white rounded-lg shadow overflow-hidden;
+}
+
+.table {
+  @apply min-w-full divide-y divide-gray-200;
+}
+
+.tableHeader {
+  @apply bg-gray-50;
+}
+
+.tableHeaderCell {
+  @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+}
+
+.tableRow {
+  @apply hover:bg-gray-50;
+}
+
+.tableCell {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+}
+
+.tableCellActions {
+  @apply px-6 py-4 whitespace-nowrap text-right text-sm font-medium;
+}
+
+.actionButton {
+  @apply text-primary hover:text-primary/80 transition-colors duration-200;
+}
+
+.deleteButton {
+  @apply text-red-500 hover:text-red-700 transition-colors duration-200 ml-4;
+}
+
+/* Modal */
+.modalOverlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50;
+}
+
+.modalContent {
+  @apply bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto;
+}
+
+.modalHeader {
+  @apply flex justify-between items-center p-6 border-b border-gray-200;
+}
+
+.modalTitle {
+  @apply text-lg font-medium text-gray-900;
+}
+
+.modalCloseButton {
+  @apply text-gray-400 hover:text-gray-500 transition-colors duration-200;
+}
+
+.form {
+  @apply p-6 space-y-6;
+}
+
+.formGroup {
+  @apply space-y-2;
+}
+
+.formLabel {
+  @apply block text-sm font-medium text-gray-700;
+}
+
+.formInput {
+  @apply block w-full px-4 py-2.5 text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary;
+}
+
+.formActions {
+  @apply flex justify-end gap-4 p-6 border-t border-gray-200;
+}

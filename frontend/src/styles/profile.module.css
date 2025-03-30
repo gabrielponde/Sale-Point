@@ -1,0 +1,79 @@
+.container {
+  @apply p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen;
+}
+
+.header {
+  @apply flex justify-between items-center mb-8;
+}
+
+.title {
+  @apply text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent tracking-tight;
+}
+
+.card {
+  @apply bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 p-8 border border-white/20;
+}
+
+.avatarContainer {
+  @apply flex items-center gap-8 mb-12;
+}
+
+.avatar {
+  @apply w-24 h-24 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-3xl font-bold text-gray-600 shadow-sm;
+}
+
+.avatarInfo {
+  @apply flex-1;
+}
+
+.avatarName {
+  @apply text-2xl font-semibold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent tracking-tight mb-6;
+}
+
+.avatarEmail {
+  @apply text-sm text-gray-500 mt-6;
+}
+
+.avatarButton {
+  @apply text-sm text-primary hover:text-primary/80 transition-colors duration-200;
+}
+
+.form {
+  @apply space-y-8;
+}
+
+.formGrid {
+  @apply grid grid-cols-2 gap-8;
+}
+
+.formGroup {
+  @apply space-y-3;
+}
+
+.formLabel {
+  @apply block text-sm font-medium text-gray-700 mb-1;
+}
+
+.formInput {
+  @apply w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200;
+}
+
+.formActions {
+  @apply flex justify-end gap-4 mt-10;
+}
+
+.buttonPrimary {
+  @apply px-6 py-3 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl hover:opacity-90 transition-all duration-200 shadow-sm hover:shadow-lg;
+}
+
+.buttonSecondary {
+  @apply px-6 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all duration-200 shadow-sm hover:shadow-lg;
+}
+
+.errorMessage {
+  @apply text-sm text-red-500 mt-2;
+}
+
+.successMessage {
+  @apply text-sm text-green-500 mt-2;
+} 

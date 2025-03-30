@@ -1,0 +1,55 @@
+.modalOverlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+}
+
+.modalContent {
+  @apply bg-white rounded-xl shadow-lg w-full max-w-2xl mx-4;
+}
+
+.modalHeader {
+  @apply flex justify-between items-center p-6 border-b;
+}
+
+.modalTitle {
+  @apply text-xl font-semibold text-gray-900;
+}
+
+.modalCloseButton {
+  @apply text-gray-400 hover:text-gray-500 transition-colors;
+}
+
+.form {
+  @apply p-6 space-y-4;
+}
+
+.formGroup {
+  @apply flex flex-col gap-2;
+}
+
+.formLabel {
+  @apply block text-sm font-medium text-gray-700;
+}
+
+.formInput {
+  @apply mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm;
+}
+
+.formActions {
+  @apply flex justify-end gap-4 mt-6;
+}
+
+.buttonSecondary {
+  @apply px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors;
+}
+
+.buttonPrimary {
+  @apply px-4 py-2 text-white bg-primary rounded-lg hover:bg-blue-600 transition-colors;
+}
+
+.error {
+  @apply text-sm text-red-500 mt-1;
+}
+
+.success {
+  @apply text-sm text-green-500 mt-1;
+} 
