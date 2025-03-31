@@ -29,7 +29,11 @@ export const AppDataSource = new DataSource({
 		}
 	},
 	entityPrefix: 'public',
-	schema: 'public'
+	schema: 'public',
+	useUTC: true,
+	cache: false,
+	maxQueryExecutionTime: 1000,
+	logger: 'advanced-console'
 })
 
 // Não inicializa o DataSource aqui, deixe o servidor fazer isso

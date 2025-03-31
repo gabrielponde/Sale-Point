@@ -60,12 +60,22 @@ async function startServer() {
         // Inicializa o banco de dados
         if (!AppDataSource.isInitialized) {
             console.log('Inicializando DataSource...');
+            
+            // Verifica se a entidade User está disponível
+            console.log('Verificando entidade User...');
+            console.log('User entity:', User);
+            
             await AppDataSource.initialize();
             console.log('Banco de dados inicializado com sucesso!');
             
             // Verifica se a entidade User está registrada
-            const userMetadata = AppDataSource.getMetadata(User);
-            console.log('Metadata da entidade User:', userMetadata);
+            try {
+                const userMetadata = AppDataSource.getMetadata(User);
+                console.log('Metadata da entidade User:', userMetadata);
+            } catch (error) {
+                console.error('Erro ao obter metadata da entidade User:', error);
+                throw error;
+            }
         }
 
         // Inicia o servidor
