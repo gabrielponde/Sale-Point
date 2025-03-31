@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://sale-point-system.vercel.app'
 
 export const endpoints = {
   auth: {
@@ -39,6 +39,14 @@ export const endpoints = {
   dashboard: {
     stats: `${API_URL}/dashboard/stats`,
   },
+}
+
+export const apiConfig = {
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+  credentials: 'include',
 }
 
 export default endpoints 
