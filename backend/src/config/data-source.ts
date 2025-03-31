@@ -50,12 +50,9 @@ export const AppDataSource = new DataSource({
   migrations: [path.join(__dirname, '../migrations/*.{js,ts}')],
   migrationsTableName: 'migrations',
   
-  // SSL configuration for Vercel
-  ssl: true,
-  extra: {
-    ssl: {
-      rejectUnauthorized: false
-    }
+  // SSL configuration for Supabase
+  ssl: {
+    rejectUnauthorized: false
   },
   
   // Performance optimizations
