@@ -3,11 +3,21 @@ import jwt from 'jsonwebtoken';
 import { AppDataSource } from '../config/data-source';
 import { User } from '../models/User';
 
-const validateToken = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+// Extendendo a interface Request do Express para incluir o user
+declare global {
+    namespace Express {
+        interface Request {
+            user?: User;
+        }
+    }
+}
+
+const validateToken = (req: Request, res: Response, next: NextFunction): void => {
     const { authorization } = req.headers;
 
     if (!authorization) {
-        return res.status(401).json({ mensagem: 'Unauthorized.' });
+        res.status(401).json({ mensagem: 'Unauthorized.' });
+        return;
     }
 
     try {
@@ -16,17 +26,21 @@ const validateToken = async (req: Request, res: Response, next: NextFunction): P
         const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: number };
 
         const userRepository = AppDataSource.getRepository(User);
-        const existingUser = await userRepository.findOneBy({ id: decoded.id });
+        userRepository.findOneBy({ id: decoded.id })
+            .then(existingUser => {
+                if (!existingUser) {
+                    res.status(401).json({ mensagem: 'Invalid or expired login.' });
+                    return;
+                }
 
-        if (!existingUser) {
-            return res.status(401).json({ mensagem: 'Invalid or expired login.' });
-        }
-
-        req.user = existingUser;
-
-        next();
+                req.user = existingUser;
+                next();
+            })
+            .catch(error => {
+                res.status(500).json({ mensagem: 'Internal Server Error.' });
+            });
     } catch (error) {
-        return res.status(500).json({ mensagem: 'Internal Server Error.' });
+        res.status(500).json({ mensagem: 'Internal Server Error.' });
     }
 };
 

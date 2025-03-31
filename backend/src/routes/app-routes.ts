@@ -10,8 +10,8 @@ import validateToken from '../middlewares/validateToken';
 const routes = Router();
 const dashboardController = new DashboardController();
 
-routes.get('/dashboard/stats', validateToken, async (req: Request, res: Response) => {
-    await dashboardController.getStats(req, res);
+routes.get('/dashboard/stats', validateToken, (req: Request, res: Response) => {
+    dashboardController.getStats(req, res);
 });
 
 routes.use('/user', userRoutes);
