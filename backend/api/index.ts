@@ -57,8 +57,10 @@ async function startServer() {
         });
         
         // Inicializa o banco de dados
-        await AppDataSource.initialize();
-        console.log('Banco de dados inicializado com sucesso!');
+        if (!AppDataSource.isInitialized) {
+            await AppDataSource.initialize();
+            console.log('Banco de dados inicializado com sucesso!');
+        }
 
         // Inicia o servidor
         const port = process.env.PORT || 3333;

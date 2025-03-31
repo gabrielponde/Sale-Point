@@ -30,18 +30,4 @@ export const AppDataSource = new DataSource({
 	}
 })
 
-// Adicionando logs para debug
-AppDataSource.initialize()
-	.then(() => {
-		console.log('Data Source inicializado com sucesso!');
-	})
-	.catch((error) => {
-		console.error('Erro ao inicializar Data Source:', error);
-		console.error('Detalhes do erro:', {
-			message: error.message,
-			code: error.code,
-			errno: error.errno,
-			syscall: error.syscall,
-			hostname: error.hostname
-		});
-	});
+// Não inicializa o DataSource aqui, deixe o servidor fazer isso
