@@ -63,8 +63,6 @@ export const AppDataSource = new DataSource({
   
   // Connection timeout settings
   connectTimeoutMS: 10000, // 10 seconds
-  acquireTimeoutMS: 10000, // 10 seconds
-  idleTimeoutMS: 30000, // 30 seconds
   
   // PostgreSQL specific
   applicationName: 'salepoint',
