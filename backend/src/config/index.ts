@@ -14,7 +14,6 @@ AppDataSource.initialize()
         // Configuração otimizada do CORS
         app.use(cors({
             origin: [
-                'http://localhost:3000',
                 'https://sale-point-app.vercel.app',
                 'https://sale-point-app.vercel.app/'
             ],

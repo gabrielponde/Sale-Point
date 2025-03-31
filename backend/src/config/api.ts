@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:PORT', 
+    baseURL: 'https://sale-point-system.vercel.app',
 });
 
 export default api;
