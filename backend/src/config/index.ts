@@ -13,10 +13,14 @@ AppDataSource.initialize()
 
         // Configuração otimizada do CORS
         app.use(cors({
-            origin: 'http://localhost:3000', // Permite apenas o frontend Next.js
-            methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Métodos permitidos
-            allowedHeaders: ['Content-Type', 'Authorization'], // Cabeçalhos permitidos
-            credentials: true // Permite cookies/sessão se necessário
+            origin: [
+                'http://localhost:3000',
+                'https://sale-point-system.vercel.app',
+                'https://sale-point-system.vercel.app/'
+            ],
+            methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+            allowedHeaders: ['Content-Type', 'Authorization'],
+            credentials: true
         }));
 
         app.use(express.json());
