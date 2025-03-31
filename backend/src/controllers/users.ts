@@ -15,20 +15,33 @@ export class UserController {
     }
 
     async register(req: Request, res: Response) {
-        const { error } = registerSchema.validate(req.body);
-        if (error) {
-            throw new ApiError(error.details[0].message, 400);
-        }
-    
-        const { name, email, password } = req.body;
-    
-        const user = await this.userService.registerUser(name, email, password);
+        try {
+            console.log('Recebida requisição de registro:', { ...req.body, password: '[REDACTED]' });
+            
+            const { error } = registerSchema.validate(req.body);
+            if (error) {
+                console.log('Erro de validação:', error.details[0].message);
+                throw new ApiError(error.details[0].message, 400);
+            }
         
-        return res.status(201).json({
-            id: user.id,    
-            nome: user.name,
-            email: user.email
-        });
+            const { name, email, password } = req.body;
+            console.log('Dados validados, tentando registrar usuário');
+        
+            const user = await this.userService.registerUser(name, email, password);
+            console.log('Usuário registrado com sucesso');
+            
+            return res.status(201).json({
+                id: user.id,    
+                nome: user.name,
+                email: user.email
+            });
+        } catch (error) {
+            console.error('Erro no controller de registro:', error);
+            if (error instanceof ApiError) {
+                return res.status(error.statusCode).json({ error: error.message });
+            }
+            return res.status(500).json({ error: 'Erro interno do servidor' });
+        }
     }
     
     async login(req: Request, res: Response) {
