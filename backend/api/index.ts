@@ -6,6 +6,7 @@ import { AppDataSource } from '../src/config/data-source';
 import routes from '../src/routes/app-routes';
 import { errorMiddleware } from '../src/middlewares/errorMiddleware';
 import { corsMiddleware } from '../src/config/cors';
+import { User } from '../src/models/User';
 
 const app = express();
 
@@ -58,8 +59,13 @@ async function startServer() {
         
         // Inicializa o banco de dados
         if (!AppDataSource.isInitialized) {
+            console.log('Inicializando DataSource...');
             await AppDataSource.initialize();
             console.log('Banco de dados inicializado com sucesso!');
+            
+            // Verifica se a entidade User está registrada
+            const userMetadata = AppDataSource.getMetadata(User);
+            console.log('Metadata da entidade User:', userMetadata);
         }
 
         // Inicia o servidor

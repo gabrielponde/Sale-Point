@@ -27,7 +27,9 @@ export const AppDataSource = new DataSource({
 		ssl: {
 			rejectUnauthorized: false
 		}
-	}
+	},
+	entityPrefix: 'public',
+	schema: 'public'
 })
 
 // Não inicializa o DataSource aqui, deixe o servidor fazer isso
