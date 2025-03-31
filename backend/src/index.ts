@@ -2,10 +2,10 @@ import 'dotenv/config'
 import 'reflect-metadata'; 
 import express from 'express';
 import morgan from 'morgan'; 
-import { AppDataSource } from './data-source';
-import routes from '../routes/app-routes';
-import { errorMiddleware } from '../middlewares/errorMiddleware';
-import { corsMiddleware } from './cors';
+import { AppDataSource } from './config/data-source';
+import routes from './routes/app-routes';
+import { errorMiddleware } from './middlewares/errorMiddleware';
+import { corsMiddleware } from './config/cors';
 
 AppDataSource.initialize()
     .then(() => {
@@ -30,4 +30,4 @@ AppDataSource.initialize()
     })
     .catch(error => {
         console.error('Error during Data Source initialization:', error);
-    });
+    }); 

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --exec ts-node ./src/config/index.ts",
+    "dev": "nodemon --exec ts-node ./src/index.ts",
     "migration:create": "typeorm-ts-node-commonjs migration:create ../migrations/%npm_config_migration%",
     "migration:run": "typeorm-ts-node-commonjs -d ./src/config/data-source.ts migration:run",
     "migration:revert": "typeorm-ts-node-commonjs -d ./src/config/data-source.ts migration:revert",
