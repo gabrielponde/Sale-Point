@@ -27,17 +27,38 @@ app.use(routes);
 app.use(errorMiddleware);
 
 // Inicializa o banco de dados
-testConnection()
-    .then(success => {
+let isInitialized = false;
+
+async function initializeDatabase() {
+    try {
+        console.log('Starting database initialization...');
+        const success = await testConnection();
         if (!success) {
             console.error('Failed to connect to database');
-            process.exit(1);
+            return false;
         }
-    })
-    .catch(error => {
-        console.error('Error during database connection:', error);
-        process.exit(1);
-    });
+        isInitialized = true;
+        console.log('Database initialization completed successfully');
+        return true;
+    } catch (error) {
+        console.error('Error during database initialization:', error);
+        return false;
+    }
+}
+
+// Middleware para verificar conexão com o banco
+app.use(async (req, res, next) => {
+    if (!isInitialized) {
+        const success = await initializeDatabase();
+        if (!success) {
+            return res.status(503).json({ 
+                error: 'Service temporarily unavailable',
+                message: 'Database connection failed'
+            });
+        }
+    }
+    next();
+});
 
 // Exporta o app para o Vercel
 export default app;
