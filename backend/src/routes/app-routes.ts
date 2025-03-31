@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import userRoutes from './user-routes';
 import productRoutes from './product-routes';
 import clientRoutes from './client-routes';
@@ -10,7 +10,7 @@ import validateToken from '../middlewares/validateToken';
 const routes = Router();
 const dashboardController = new DashboardController();
 
-routes.get('/dashboard/stats', validateToken, async (req, res) => {
+routes.get('/dashboard/stats', validateToken, async (req: Request, res: Response) => {
     await dashboardController.getStats(req, res);
 });
 
