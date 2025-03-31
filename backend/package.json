@@ -9,7 +9,7 @@
     "migration:revert": "typeorm-ts-node-commonjs -d ./src/config/data-source.ts migration:revert",
     "build": "tsc",
     "start": "node dist/index.js",
-    "vercel-build": "npm run build"
+    "vercel-build": "tsc"
   },
   "keywords": [],
   "author": "",
