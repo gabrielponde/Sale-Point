@@ -47,6 +47,7 @@ export const apiConfig = {
     'Accept': 'application/json',
   },
   credentials: 'include',
+  mode: 'cors' as const,
 }
 
 export default endpoints 
