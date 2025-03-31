@@ -40,7 +40,15 @@ const dbMiddleware: RequestHandler = async (req, res, next) => {
                 database: process.env.DB_NAME,
                 user: process.env.DB_USER
             });
-            await AppDataSource.initialize();
+            
+            // Tenta conectar com timeout
+            const connectionPromise = AppDataSource.initialize();
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('Database connection timeout')), 10000);
+            });
+            
+            await Promise.race([connectionPromise, timeoutPromise]);
+            
             console.log('Database connected successfully');
             console.log('Registered entities:', 
                 AppDataSource.entityMetadatas.map(m => m.name));
@@ -50,7 +58,8 @@ const dbMiddleware: RequestHandler = async (req, res, next) => {
         console.error('Database connection error:', error);
         res.status(503).json({ 
             error: 'Service temporarily unavailable',
-            message: 'Database connection failed'
+            message: 'Database connection failed',
+            details: error instanceof Error ? error.message : 'Unknown error'
         });
     }
 };

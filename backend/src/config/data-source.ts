@@ -57,9 +57,14 @@ export const AppDataSource = new DataSource({
   
   // Performance optimizations
   synchronize: false,
-  logging: true, // Habilitando logs para debug
-  poolSize: 10,
-  maxQueryExecutionTime: 1000,
+  logging: true,
+  poolSize: 5,
+  connectTimeoutMS: 10000,
+  extra: {
+    max: 5,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000,
+  },
   
   // PostgreSQL specific
   applicationName: 'salepoint',
