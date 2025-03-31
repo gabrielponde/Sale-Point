@@ -11,6 +11,12 @@ console.log('Port:', process.env.DB_PORT);
 console.log('Database:', process.env.DB_NAME);
 console.log('User:', process.env.DB_USER);
 
+// Define as entidades explicitamente
+const entities = [User];
+
+// Log das entidades para debug
+console.log('Entidades carregadas:', entities.map(e => e.name));
+
 export const AppDataSource = new DataSource({
 	type: 'postgres',
 	host: process.env.DB_HOST,
@@ -19,7 +25,7 @@ export const AppDataSource = new DataSource({
 	password: process.env.DB_PASS,
 	database: process.env.DB_NAME,
 	migrations: ['migrations/*.ts'],
-	entities: [User],
+	entities: entities,
 	synchronize: false,
 	logging: true,
 	ssl: true,
@@ -33,7 +39,11 @@ export const AppDataSource = new DataSource({
 	useUTC: true,
 	cache: false,
 	maxQueryExecutionTime: 1000,
-	logger: 'advanced-console'
+	logger: 'advanced-console',
+	dropSchema: false,
+	migrationsRun: false,
+	migrationsTableName: 'migrations',
+	migrationsTransactionMode: 'each'
 })
 
 // Não inicializa o DataSource aqui, deixe o servidor fazer isso

@@ -64,16 +64,22 @@ async function startServer() {
             // Verifica se a entidade User está disponível
             console.log('Verificando entidade User...');
             console.log('User entity:', User);
+            console.log('User entity name:', User.name);
+            console.log('User entity prototype:', Object.getPrototypeOf(User));
             
-            await AppDataSource.initialize();
-            console.log('Banco de dados inicializado com sucesso!');
-            
-            // Verifica se a entidade User está registrada
             try {
+                await AppDataSource.initialize();
+                console.log('Banco de dados inicializado com sucesso!');
+                
+                // Verifica se a entidade User está registrada
                 const userMetadata = AppDataSource.getMetadata(User);
                 console.log('Metadata da entidade User:', userMetadata);
+                
+                // Verifica se o repositório está disponível
+                const userRepository = AppDataSource.getRepository(User);
+                console.log('Repositório User disponível:', !!userRepository);
             } catch (error) {
-                console.error('Erro ao obter metadata da entidade User:', error);
+                console.error('Erro durante a inicialização do banco:', error);
                 throw error;
             }
         }
