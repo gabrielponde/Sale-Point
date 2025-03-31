@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import 'reflect-metadata'; 
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction, RequestHandler } from 'express';
 import morgan from 'morgan'; 
 import { AppDataSource } from './config/data-source';
 import routes from './routes/app-routes';
@@ -20,8 +20,8 @@ app.get('/', (req: Request, res: Response) => {
     res.json({ message: 'API is running!' });
 });
 
-// Inicializa o banco de dados
-const initializeDatabase = async () => {
+// Middleware para garantir que o banco está conectado
+const dbMiddleware: RequestHandler = async (req, res, next) => {
     try {
         if (!AppDataSource.isInitialized) {
             await AppDataSource.initialize();
@@ -29,28 +29,31 @@ const initializeDatabase = async () => {
             console.log('Registered entities:', 
                 AppDataSource.entityMetadatas.map(m => m.name));
         }
+        next();
     } catch (error) {
-        console.error('Error during Data Source initialization:', error);
-        process.exit(1); // Encerra o processo se não conseguir conectar ao banco
+        console.error('Database connection error:', error);
+        res.status(503).json({ 
+            error: 'Service temporarily unavailable',
+            message: 'Database connection failed'
+        });
     }
 };
 
-// Inicializa o banco de dados antes de configurar as rotas
-initializeDatabase().then(() => {
-    // Rotas
-    app.use(routes);
+app.use(dbMiddleware);
 
-    // Middleware de erro (mantém por último)
-    app.use(errorMiddleware);
+// Rotas
+app.use(routes);
 
-    // Inicia o servidor apenas se não estiver rodando no Vercel
-    if (process.env.NODE_ENV !== 'production') {
-        const port = process.env.PORT || 3333;
-        app.listen(port, () => {
-            console.log(`Server is running on port ${port}`);
-        });
-    }
-});
+// Middleware de erro (mantém por último)
+app.use(errorMiddleware);
 
 // Exporta o app para o Vercel
-export default app; 
+export default app;
+
+// Inicia o servidor apenas se não estiver rodando no Vercel
+if (process.env.NODE_ENV !== 'production') {
+    const port = process.env.PORT || 3333;
+    app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+    });
+} 
