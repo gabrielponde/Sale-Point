@@ -30,6 +30,7 @@ app.use(errorMiddleware);
 AppDataSource.initialize()
     .then(() => {
         console.log('Database connection established');
+        console.log('Entities loaded:', AppDataSource.entityMetadatas.map(metadata => metadata.name));
     })
     .catch((error: Error) => {
         console.error('Error during Data Source initialization:', error);
