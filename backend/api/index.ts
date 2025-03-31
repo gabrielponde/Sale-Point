@@ -38,7 +38,23 @@ app.use(errorMiddleware);
 async function startServer() {
     try {
         console.log('Iniciando servidor...');
+        console.log('Verificando variáveis de ambiente...');
+        
+        // Verifica variáveis de ambiente necessárias
+        const requiredEnvVars = ['DB_HOST', 'DB_USER', 'DB_PASS', 'DB_NAME', 'DB_PORT'];
+        const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+        
+        if (missingEnvVars.length > 0) {
+            throw new Error(`Variáveis de ambiente faltando: ${missingEnvVars.join(', ')}`);
+        }
+
         console.log('Tentando conectar ao banco de dados...');
+        console.log('Configuração do banco:', {
+            host: process.env.DB_HOST,
+            port: process.env.DB_PORT,
+            database: process.env.DB_NAME,
+            user: process.env.DB_USER
+        });
         
         // Inicializa o banco de dados
         await AppDataSource.initialize();
@@ -52,6 +68,10 @@ async function startServer() {
         });
     } catch (error) {
         console.error('Erro ao iniciar servidor:', error);
+        console.error('Detalhes do erro:', {
+            message: error.message,
+            stack: error.stack
+        });
         process.exit(1);
     }
 }
