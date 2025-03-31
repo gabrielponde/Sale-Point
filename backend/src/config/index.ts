@@ -15,8 +15,8 @@ AppDataSource.initialize()
         app.use(cors({
             origin: [
                 'http://localhost:3000',
-                'https://sale-point-system.vercel.app',
-                'https://sale-point-system.vercel.app/'
+                'https://sale-point-app.vercel.app',
+                'https://sale-point-app.vercel.app/'
             ],
             methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
             allowedHeaders: ['Content-Type', 'Authorization'],
