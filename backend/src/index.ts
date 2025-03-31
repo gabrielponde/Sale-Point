@@ -15,6 +15,11 @@ app.use(corsMiddleware);
 app.use(express.json());
 app.use(morgan('dev'));
 
+// Rota de teste
+app.get('/', (req, res) => {
+    res.json({ message: 'API is running!' });
+});
+
 // Rotas
 app.use(routes);
 
