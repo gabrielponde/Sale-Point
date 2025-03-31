@@ -1,7 +1,10 @@
 import cors from 'cors'
 
 export const corsOptions = {
-  origin: true, // Permite todas as origens
+  origin: [
+    'https://sale-point-app.vercel.app',
+    'http://localhost:3000'
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,

@@ -30,19 +30,23 @@ export default function RegisterPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
+        credentials: 'include',
+        mode: 'cors',
         body: JSON.stringify({ name, email, password }),
       })
 
       if (!response.ok) {
-        throw new Error('Erro ao criar conta')
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Erro ao criar conta')
       }
 
       toast.success('Conta criada com sucesso!')
       router.push('/login')
     } catch (error) {
       console.error('Erro:', error)
-      toast.error('Erro ao criar conta')
+      toast.error(error instanceof Error ? error.message : 'Erro ao criar conta')
     } finally {
       setIsLoading(false)
     }
