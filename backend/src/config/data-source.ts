@@ -47,7 +47,10 @@ export const AppDataSource = new DataSource({
   // Entity configuration
   entities: entities,
   
-  // SSL configuration for Supabase
+  migrations: [path.join(__dirname, '../migrations/*.{js,ts}')],
+  migrationsTableName: 'migrations',
+  
+  // SSL configuration for Vercel
   ssl: true,
   extra: {
     ssl: {
@@ -56,8 +59,8 @@ export const AppDataSource = new DataSource({
   },
   
   // Performance optimizations
-  synchronize: false, // Importante: false pois o banco já existe
-  logging: true,
+  synchronize: false,
+  logging: true, // Habilitando logs para debug
   poolSize: 10,
   maxQueryExecutionTime: 1000,
   

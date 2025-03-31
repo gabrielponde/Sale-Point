@@ -20,27 +20,37 @@ app.get('/', (req: Request, res: Response) => {
     res.json({ message: 'API is running!' });
 });
 
-// Conecta ao banco de dados
-AppDataSource.initialize()
-    .then(() => {
-        console.log('Database connected successfully');
-        
-        // Configura as rotas após conectar ao banco
-        app.use(routes);
-        app.use(errorMiddleware);
-
-        // Inicia o servidor apenas se não estiver rodando no Vercel
-        if (process.env.NODE_ENV !== 'production') {
-            const port = process.env.PORT || 3333;
-            app.listen(port, () => {
-                console.log(`Server is running on port ${port}`);
-            });
+// Inicializa o banco de dados
+const initializeDatabase = async () => {
+    try {
+        if (!AppDataSource.isInitialized) {
+            await AppDataSource.initialize();
+            console.log('Database connected successfully');
+            console.log('Registered entities:', 
+                AppDataSource.entityMetadatas.map(m => m.name));
         }
-    })
-    .catch(error => {
-        console.error('Error connecting to database:', error);
-        process.exit(1);
-    });
+    } catch (error) {
+        console.error('Error during Data Source initialization:', error);
+        process.exit(1); // Encerra o processo se não conseguir conectar ao banco
+    }
+};
+
+// Inicializa o banco de dados antes de configurar as rotas
+initializeDatabase().then(() => {
+    // Rotas
+    app.use(routes);
+
+    // Middleware de erro (mantém por último)
+    app.use(errorMiddleware);
+
+    // Inicia o servidor apenas se não estiver rodando no Vercel
+    if (process.env.NODE_ENV !== 'production') {
+        const port = process.env.PORT || 3333;
+        app.listen(port, () => {
+            console.log(`Server is running on port ${port}`);
+        });
+    }
+});
 
 // Exporta o app para o Vercel
 export default app; 
