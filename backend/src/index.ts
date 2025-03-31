@@ -21,6 +21,17 @@ const app = express();
 // Configuração do CORS
 app.use(corsMiddleware);
 
+// Configuração do timeout
+app.use((req, res, next) => {
+    res.setTimeout(30000, () => {
+        res.status(504).json({ 
+            error: 'Gateway Timeout',
+            message: 'Request took too long to process'
+        });
+    });
+    next();
+});
+
 app.use(express.json());
 app.use(morgan('dev'));
 
@@ -40,15 +51,7 @@ const dbMiddleware: RequestHandler = async (req, res, next) => {
                 database: process.env.DB_NAME,
                 user: process.env.DB_USER
             });
-            
-            // Tenta conectar com timeout
-            const connectionPromise = AppDataSource.initialize();
-            const timeoutPromise = new Promise((_, reject) => {
-                setTimeout(() => reject(new Error('Database connection timeout')), 10000);
-            });
-            
-            await Promise.race([connectionPromise, timeoutPromise]);
-            
+            await AppDataSource.initialize();
             console.log('Database connected successfully');
             console.log('Registered entities:', 
                 AppDataSource.entityMetadatas.map(m => m.name));
@@ -58,8 +61,7 @@ const dbMiddleware: RequestHandler = async (req, res, next) => {
         console.error('Database connection error:', error);
         res.status(503).json({ 
             error: 'Service temporarily unavailable',
-            message: 'Database connection failed',
-            details: error instanceof Error ? error.message : 'Unknown error'
+            message: 'Database connection failed'
         });
     }
 };
