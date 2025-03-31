@@ -7,6 +7,15 @@ import routes from './routes/app-routes';
 import { errorMiddleware } from './middlewares/errorMiddleware';
 import { corsMiddleware } from './config/cors';
 
+// Log das variáveis de ambiente (remover em produção)
+console.log('Environment variables:', {
+    DB_HOST: process.env.DB_HOST,
+    DB_PORT: process.env.DB_PORT,
+    DB_NAME: process.env.DB_NAME,
+    DB_USER: process.env.DB_USER,
+    NODE_ENV: process.env.NODE_ENV
+});
+
 const app = express();
 
 // Configuração do CORS
@@ -24,6 +33,13 @@ app.get('/', (req: Request, res: Response) => {
 const dbMiddleware: RequestHandler = async (req, res, next) => {
     try {
         if (!AppDataSource.isInitialized) {
+            console.log('Attempting to connect to database...');
+            console.log('Database configuration:', {
+                host: process.env.DB_HOST,
+                port: process.env.DB_PORT,
+                database: process.env.DB_NAME,
+                user: process.env.DB_USER
+            });
             await AppDataSource.initialize();
             console.log('Database connected successfully');
             console.log('Registered entities:', 
