@@ -30,6 +30,12 @@ console.log('Initializing database connection with config:', {
   ssl: true
 });
 
+// Define all entities
+const entities = [User, Product, Order, OrderProduct, Client, Category];
+
+// Log all entities being registered
+console.log('Registering entities:', entities.map(e => e.name));
+
 export const AppDataSource = new DataSource({
   type: 'postgres',
   host: process.env.DB_HOST,
@@ -39,19 +45,9 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME,
   
   // Entity configuration
-  entities: [
-    User,
-    Product,
-    Order,
-    OrderProduct,
-    Client,
-    Category
-  ],
+  entities: entities,
   
-  migrations: [path.join(__dirname, '../migrations/*.{js,ts}')],
-  migrationsTableName: 'migrations',
-  
-  // SSL configuration for Vercel
+  // SSL configuration for Supabase
   ssl: true,
   extra: {
     ssl: {
@@ -60,8 +56,8 @@ export const AppDataSource = new DataSource({
   },
   
   // Performance optimizations
-  synchronize: false,
-  logging: true, // Habilitando logs para debug
+  synchronize: false, // Importante: false pois o banco já existe
+  logging: true,
   poolSize: 10,
   maxQueryExecutionTime: 1000,
   
