@@ -72,7 +72,8 @@ async function startServer() {
             message: error.message,
             stack: error.stack
         });
-        process.exit(1);
+        // Não encerra o processo, apenas loga o erro
+        console.error('Servidor continuará rodando mesmo com erro no banco de dados');
     }
 }
 

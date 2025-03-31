@@ -22,10 +22,7 @@ export const AppDataSource = new DataSource({
 	entities: [User],
 	synchronize: false,
 	logging: true,
-	ssl: {
-		rejectUnauthorized: false,
-		ca: process.env.SUPABASE_SSL_CERT
-	},
+	ssl: true,
 	extra: {
 		ssl: {
 			rejectUnauthorized: false
