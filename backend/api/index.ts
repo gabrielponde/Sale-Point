@@ -15,7 +15,12 @@ app.use(corsMiddleware);
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Rotas
+// Rota básica para a raiz
+app.get('/', (req, res) => {
+    res.json({ message: 'API is running' });
+});
+
+// Rotas da aplicação
 app.use(routes);
 
 // Middleware de erro
