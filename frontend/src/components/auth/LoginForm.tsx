@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import styles from '@/styles/loginForm.module.css'
+import endpoints from '@/config/api'
 
 // Schema de validação
 const loginSchema = Yup.object().shape({
@@ -33,7 +34,7 @@ export default function LoginForm() {
       setIsLoading(true)
       try {
         // TODO: Implementar a chamada à API de login
-        const response = await fetch('http://localhost:3333/session', {
+        const response = await fetch(endpoints.auth.login, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

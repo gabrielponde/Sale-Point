@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'react-toastify'
 import styles from '@/styles/register.module.css'
+import endpoints from '@/config/api'
 
 export default function RegisterPage() {
   const [name, setName] = useState('')
@@ -25,7 +26,7 @@ export default function RegisterPage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch('http://localhost:3333/user/register', {
+      const response = await fetch(endpoints.auth.register, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
