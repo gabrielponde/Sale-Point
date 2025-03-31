@@ -35,16 +35,22 @@ app.use(routes);
 app.use(errorMiddleware);
 
 // Inicializa o banco de dados e inicia o servidor
-AppDataSource.initialize()
-    .then(() => {
+const startServer = async () => {
+    try {
+        await AppDataSource.initialize();
+        console.log('Database connection established');
+        
         const port = process.env.PORT || 3333;
         app.listen(port, () => {
             console.log(`Server is running on port ${port}`);
             console.log('CORS enabled for all origins');
         });
-    })
-    .catch(error => {
+    } catch (error) {
         console.error('Error during Data Source initialization:', error);
-    });
+        process.exit(1);
+    }
+};
+
+startServer();
 
 export default app; 
