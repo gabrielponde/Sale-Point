@@ -2,7 +2,7 @@ import 'dotenv/config'
 import 'reflect-metadata'; 
 import express from 'express';
 import morgan from 'morgan'; 
-import { AppDataSource } from './config/data-source';
+import { AppDataSource, testConnection } from './config/data-source';
 import routes from './routes/app-routes';
 import { errorMiddleware } from './middlewares/errorMiddleware';
 import { corsMiddleware } from './config/cors';
@@ -27,13 +27,16 @@ app.use(routes);
 app.use(errorMiddleware);
 
 // Inicializa o banco de dados
-AppDataSource.initialize()
-    .then(() => {
-        console.log('Database connection established');
-        console.log('Entities loaded:', AppDataSource.entityMetadatas.map(metadata => metadata.name));
+testConnection()
+    .then(success => {
+        if (!success) {
+            console.error('Failed to connect to database');
+            process.exit(1);
+        }
     })
-    .catch((error: Error) => {
-        console.error('Error during Data Source initialization:', error);
+    .catch(error => {
+        console.error('Error during database connection:', error);
+        process.exit(1);
     });
 
 // Exporta o app para o Vercel
