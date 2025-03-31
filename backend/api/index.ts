@@ -9,6 +9,13 @@ import { corsMiddleware } from '../src/config/cors';
 
 const app = express();
 
+// Middleware para log de requisições
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  console.log('Headers:', req.headers);
+  next();
+});
+
 // Configuração do CORS (deve vir antes de outras configurações)
 app.use(corsMiddleware);
 
@@ -33,6 +40,7 @@ AppDataSource.initialize()
         const port = process.env.PORT || 3333;
         app.listen(port, () => {
             console.log(`Server is running on port ${port}`);
+            console.log('CORS enabled for all origins');
         });
     })
     .catch(error => {
