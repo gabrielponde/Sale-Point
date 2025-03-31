@@ -9,9 +9,10 @@ import { corsMiddleware } from '../src/config/cors';
 
 const app = express();
 
-// Configuração do CORS
+// Configuração do CORS (deve vir antes de outras configurações)
 app.use(corsMiddleware);
 
+// Configurações básicas
 app.use(express.json());
 app.use(morgan('dev'));
 
@@ -23,7 +24,7 @@ app.get('/', (req, res) => {
 // Rotas da aplicação
 app.use(routes);
 
-// Middleware de erro
+// Middleware de erro (deve vir por último)
 app.use(errorMiddleware);
 
 // Inicializa o banco de dados e inicia o servidor
