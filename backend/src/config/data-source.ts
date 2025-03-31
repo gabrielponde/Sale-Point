@@ -2,7 +2,6 @@ import 'dotenv/config'
 import 'reflect-metadata'
 import { DataSource } from 'typeorm'
 import { User } from '../models/User'
-import path from 'path'
 
 const port = process.env.DB_PORT as number | undefined
 
@@ -25,9 +24,9 @@ export const AppDataSource = new DataSource({
 	username: process.env.DB_USER,
 	password: process.env.DB_PASS,
 	database: process.env.DB_NAME,
-	migrations: [path.join(__dirname, '../migrations/*.ts')],
-	entities: [path.join(__dirname, '../models/*.ts')],
-	synchronize: true,
+	migrations: ['migrations/*.ts'],
+	entities: entities,
+	synchronize: false,
 	logging: true,
 	ssl: true,
 	extra: {
