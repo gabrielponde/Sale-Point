@@ -16,7 +16,7 @@
     "schema:log": "typeorm-ts-node-commonjs -d ./src/config/data-source.ts schema:log",
     "build": "tsc",
     "start": "node dist/index.js",
-    "vercel-build": "echo 'Ready for deployment'"
+    "vercel-build": "tsc"
   },
   "keywords": [],
   "author": "",
