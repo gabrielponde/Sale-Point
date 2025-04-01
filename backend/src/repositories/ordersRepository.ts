@@ -48,6 +48,7 @@ export class OrderRepository {
     async findOrderById(id: number): Promise<Order | null> {
         return this.dataSource.getRepository(Order)
             .createQueryBuilder('order')
+            .leftJoinAndSelect('order.client', 'client')
             .leftJoinAndSelect('order.product', 'productOrder')
             .leftJoinAndSelect('productOrder.product', 'product')
             .where('order.id = :id', { id })

@@ -83,14 +83,19 @@ export class OrderService {
         }, 0);
 
         // Salva o pedido atualizado
-        const updatedOrder = await this.orderRepository.saveOrder(order);
+        await this.orderRepository.saveOrder(order);
 
         // Salva os novos produtos do pedido
         for (const productOrder of orderProductsInstances) {
-            productOrder.order = updatedOrder;
+            productOrder.order = order;
             await this.updateStockAndSaveProductOrder(productOrder);
         }
 
+        // Busca o pedido atualizado com todos os relacionamentos
+        const updatedOrder = await this.orderRepository.findOrderById(id);
+        if (!updatedOrder) {
+            throw new Error('Erro ao buscar pedido atualizado');
+        }
         return updatedOrder;
     }
 }
