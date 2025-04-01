@@ -53,8 +53,15 @@ async function getConnectionWithCache(): Promise<void> {
     
     // Se tiver uma conexão em andamento, usa ela
     if (connectionPromise) {
-        await connectionPromise;
-        return;
+        try {
+            await Promise.race([
+                connectionPromise,
+                new Promise<void>((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 5000))
+            ]);
+            return;
+        } catch {
+            connectionPromise = null; // Limpa a promessa em caso de erro
+        }
     }
     
     // Se a última conexão foi há menos de 5 minutos, não precisa reconectar
@@ -68,7 +75,7 @@ async function getConnectionWithCache(): Promise<void> {
             lastConnectionTime = Date.now();
             connectionPromise = null;
         }),
-        new Promise<void>((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 8000))
+        new Promise<void>((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 5000))
     ]) as Promise<void>;
 
     await connectionPromise;
@@ -82,7 +89,10 @@ app.use(async (req, res, next) => {
     }
 
     try {
-        await getConnectionWithCache();
+        await Promise.race([
+            getConnectionWithCache(),
+            new Promise<void>((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 5000))
+        ]);
         next();
     } catch (error: unknown) {
         console.error('Database connection error:', error);

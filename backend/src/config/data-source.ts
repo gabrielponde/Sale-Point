@@ -32,25 +32,25 @@ export const AppDataSource = new DataSource({
     },
     extra: {
         max: 1,
-        connectionTimeoutMillis: 3000, // 3 segundos para região SA
-        query_timeout: 5000, // 5 segundos para região SA
-        statement_timeout: 5000,
-        idle_in_transaction_session_timeout: 5000,
+        connectionTimeoutMillis: 2000, // 2 segundos
+        query_timeout: 3000, // 3 segundos
+        statement_timeout: 3000,
+        idle_in_transaction_session_timeout: 3000,
         ssl: true,
         application_name: 'sale-point-api', // Ajuda no monitoramento
         keepalive: true, // Mantém conexão viva
-        keepaliveInitialDelayMillis: 1000, // Começa keepalive após 1s
+        keepaliveInitialDelayMillis: 500, // Reduzido para 500ms
         // Configurações específicas para região SA
         region: 'sa-east-1',
         // Otimizações para conexões de longa distância
         tcp_keepalive: true,
-        tcp_keepalive_idle: 60, // Aumentado para região SA
-        tcp_keepalive_interval: 30,
-        tcp_keepalive_count: 5
+        tcp_keepalive_idle: 30, // Reduzido para 30s
+        tcp_keepalive_interval: 10,
+        tcp_keepalive_count: 3
     },
     poolSize: 1,
-    connectTimeoutMS: 3000,
-    maxQueryExecutionTime: 5000,
+    connectTimeoutMS: 2000,
+    maxQueryExecutionTime: 3000,
     cache: false,
     logging: false
 });
