@@ -20,21 +20,26 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Health check endpoint
 app.get('/health', async (_, res) => {
+    console.log('Health check requested');
     try {
         const isHealthy = await getConnection()
             .then(() => true)
             .catch(() => false);
 
         if (isHealthy) {
+            console.log('Database is connected');
             res.json({ status: 'healthy', database: 'connected' });
         } else {
+            console.log('Database is disconnected');
             res.status(503).json({ status: 'unhealthy', database: 'disconnected' });
         }
     } catch (error: unknown) {
+        console.error('Health check error:', error);
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         res.status(503).json({ status: 'error', message: errorMessage });
     }
 });
+
 
 // Rota de teste
 app.get('/', (_, res) => {
