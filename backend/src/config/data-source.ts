@@ -31,26 +31,24 @@ export const AppDataSource = new DataSource({
         rejectUnauthorized: false
     },
     extra: {
-        max: 1,
-        connectionTimeoutMillis: 2000, // 2 segundos
-        query_timeout: 3000, // 3 segundos
-        statement_timeout: 3000,
-        idle_in_transaction_session_timeout: 3000,
+        max: 10, // Ajuste para 10 conexões simultâneas no pool
+        connectionTimeoutMillis: 5000, // 5 segundos
+        query_timeout: 5000, // 5 segundos
+        statement_timeout: 5000, // 5 segundos
+        idle_in_transaction_session_timeout: 5000,
         ssl: true,
         application_name: 'sale-point-api', // Ajuda no monitoramento
         keepalive: true, // Mantém conexão viva
-        keepaliveInitialDelayMillis: 500, // Reduzido para 500ms
-        // Configurações específicas para região SA
+        keepaliveInitialDelayMillis: 1000, // Aumento do delay inicial para 1s
         region: 'sa-east-1',
-        // Otimizações para conexões de longa distância
         tcp_keepalive: true,
-        tcp_keepalive_idle: 30, // Reduzido para 30s
-        tcp_keepalive_interval: 10,
-        tcp_keepalive_count: 3
+        tcp_keepalive_idle: 60, // Aumentado para 60 segundos
+        tcp_keepalive_interval: 30, // Aumento do intervalo para 30 segundos
+        tcp_keepalive_count: 5 // Aumento do count para 5 tentativas
     },
-    poolSize: 1,
-    connectTimeoutMS: 2000,
-    maxQueryExecutionTime: 3000,
+    poolSize: 10, // Aumentado o pool de conexões
+    connectTimeoutMS: 5000, // Aumentado o tempo de conexão para 5 segundos
+    maxQueryExecutionTime: 5000, // Aumentado para 5 segundos
     cache: false,
     logging: false
 });
@@ -64,18 +62,18 @@ export async function getConnection(): Promise<DataSource> {
 
         if (!connectionInstance.isInitialized) {
             // Tenta inicializar com retry
-            for (let attempt = 1; attempt <= 2; attempt++) {
+            for (let attempt = 1; attempt <= 3; attempt++) { // Aumentando tentativas
                 try {
                     await Promise.race([
                         connectionInstance.initialize(),
                         new Promise((_, reject) => 
-                            setTimeout(() => reject(new Error('Connection timeout')), 2000)
+                            setTimeout(() => reject(new Error('Connection timeout')), 5000) // Aumento do tempo de timeout para 5 segundos
                         )
                     ]);
                     break;
                 } catch (error) {
-                    if (attempt === 2) throw error;
-                    await new Promise(resolve => setTimeout(resolve, 500)); // Espera 500ms antes do retry
+                    if (attempt === 3) throw error; // Tentativa final
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Espera 1s antes do retry
                 }
             }
         }
@@ -95,7 +93,7 @@ export async function checkConnection(): Promise<boolean> {
         await Promise.race([
             connection.query('SELECT 1'),
             new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Health check timeout')), 2000)
+                setTimeout(() => reject(new Error('Health check timeout')), 5000) // Aumento para 5 segundos
             )
         ]);
         return true;
@@ -138,13 +136,25 @@ export async function testConnection() {
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
+      PORT: string;
+      JWT_SECRET: string;
+      
+      HOST_EMAIL: string;
+      PORT_EMAIL: string;
+      USER_EMAIL: string;
+      PASS_EMAIL: string;
+      
       DB_HOST: string;
       DB_USER: string;
       DB_PASS: string;
       DB_NAME: string;
       DB_PORT: string;
-      JWT_SECRET: string;
-      // Add other environment variables you use
+      
+      KEY_ID: string;
+      APP_KEY: string;
+      ENDPOINT_S3: string;
+      SUPABASE_BUCKET: string;
+      SUPABASE_URL: string;
     }
   }
 }

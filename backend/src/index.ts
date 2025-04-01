@@ -2,7 +2,7 @@ import 'dotenv/config';
 import 'reflect-metadata'; 
 import express from 'express';
 import morgan from 'morgan'; 
-import { getConnection, checkConnection } from './config/data-source';
+import { getConnection } from './config/data-source'; // Agora esta função gerencia tudo
 import routes from './routes/app-routes';
 import { errorMiddleware } from './middlewares/errorMiddleware';
 import { corsMiddleware } from './config/cors';
@@ -21,11 +21,10 @@ if (process.env.NODE_ENV !== 'production') {
 // Health check endpoint
 app.get('/health', async (_, res) => {
     try {
-        const isHealthy = await Promise.race([
-            checkConnection(),
-            new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 3000))
-        ]);
-        
+        const isHealthy = await getConnection()
+            .then(() => true)
+            .catch(() => false);
+
         if (isHealthy) {
             res.json({ status: 'healthy', database: 'connected' });
         } else {
@@ -42,45 +41,6 @@ app.get('/', (_, res) => {
     res.json({ message: 'API is running!' });
 });
 
-// Cache de conexão por 5 minutos
-let connectionPromise: Promise<void> | null = null;
-let lastConnectionTime = 0;
-const CONNECTION_TTL = 5 * 60 * 1000; // 5 minutos
-
-// Função para gerenciar conexão com cache
-async function getConnectionWithCache(): Promise<void> {
-    const now = Date.now();
-    
-    // Se tiver uma conexão em andamento, usa ela
-    if (connectionPromise) {
-        try {
-            await Promise.race([
-                connectionPromise,
-                new Promise<void>((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 5000))
-            ]);
-            return;
-        } catch {
-            connectionPromise = null; // Limpa a promessa em caso de erro
-        }
-    }
-    
-    // Se a última conexão foi há menos de 5 minutos, não precisa reconectar
-    if (lastConnectionTime && (now - lastConnectionTime) < CONNECTION_TTL) {
-        return;
-    }
-    
-    // Cria nova promessa de conexão
-    connectionPromise = Promise.race([
-        getConnection().then(() => {
-            lastConnectionTime = Date.now();
-            connectionPromise = null;
-        }),
-        new Promise<void>((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 5000))
-    ]) as Promise<void>;
-
-    await connectionPromise;
-}
-
 // Middleware otimizado para conexão com banco
 app.use(async (req, res, next) => {
     // Ignora a verificação de banco para OPTIONS e rotas públicas
@@ -89,10 +49,7 @@ app.use(async (req, res, next) => {
     }
 
     try {
-        await Promise.race([
-            getConnectionWithCache(),
-            new Promise<void>((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 5000))
-        ]);
+        await getConnection();
         next();
     } catch (error: unknown) {
         console.error('Database connection error:', error);
@@ -112,7 +69,7 @@ app.use(routes);
 app.use(errorMiddleware);
 
 // Tenta estabelecer conexão inicial
-getConnectionWithCache()
+getConnection()
     .then(() => console.log('Initial database connection established'))
     .catch(error => console.error('Initial database connection failed:', error));
 
