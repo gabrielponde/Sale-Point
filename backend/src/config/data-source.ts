@@ -38,31 +38,21 @@ console.log('Registering entities:', entities.map(e => e.name));
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  url: `postgresql://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:${port}/${process.env.DB_NAME}`,
-  
-  // Entity configuration
+  host: process.env.DB_HOST,
+  port: port,
+  username: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
   entities: entities,
-  
   migrations: [path.join(__dirname, '../migrations/*.{js,ts}')],
   migrationsTableName: 'migrations',
-  
-  // SSL configuration for Supabase
   ssl: {
     rejectUnauthorized: false
   },
-  
-  // Performance optimizations
   synchronize: false,
   logging: true,
-  poolSize: 5,
-  maxQueryExecutionTime: 1000,
-  
-  // Connection timeout settings
-  connectTimeoutMS: 10000, // 10 seconds
-  
-  // PostgreSQL specific
-  applicationName: 'salepoint',
-  useUTC: true
+  poolSize: 3,
+  connectTimeoutMS: 5000
 });
 
 // Connection test function

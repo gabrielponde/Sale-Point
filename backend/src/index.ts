@@ -23,7 +23,7 @@ app.use(corsMiddleware);
 
 // Configuração do timeout
 app.use((req, res, next) => {
-    res.setTimeout(30000, () => {
+    res.setTimeout(15000, () => {
         res.status(504).json({ 
             error: 'Gateway Timeout',
             message: 'Request took too long to process'
@@ -44,17 +44,7 @@ app.get('/', (req: Request, res: Response) => {
 const dbMiddleware: RequestHandler = async (req, res, next) => {
     try {
         if (!AppDataSource.isInitialized) {
-            console.log('Attempting to connect to database...');
-            console.log('Database configuration:', {
-                host: process.env.DB_HOST,
-                port: process.env.DB_PORT,
-                database: process.env.DB_NAME,
-                user: process.env.DB_USER
-            });
             await AppDataSource.initialize();
-            console.log('Database connected successfully');
-            console.log('Registered entities:', 
-                AppDataSource.entityMetadatas.map(m => m.name));
         }
         next();
     } catch (error) {
