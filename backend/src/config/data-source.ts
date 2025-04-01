@@ -42,7 +42,6 @@ export const AppDataSource = new DataSource({
     logging: ["error", "warn", "info"], // Log mais detalhado
 });
 
-// Connection test function
 export async function testConnection() {
   try {
     if (!AppDataSource.isInitialized) {
