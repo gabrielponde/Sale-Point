@@ -72,4 +72,13 @@ export class OrderRepository {
         // Agora podemos excluir o pedido (os produtos do pedido serão excluídos automaticamente devido ao cascade)
         await this.dataSource.getRepository(Order).remove(order);
     }
+
+    async deleteOrderProducts(orderId: number): Promise<void> {
+        await this.dataSource
+            .createQueryBuilder()
+            .delete()
+            .from(OrderProduct)
+            .where('order_id = :orderId', { orderId })
+            .execute();
+    }
 }

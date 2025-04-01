@@ -61,6 +61,10 @@ export class OrderService {
             }
         }
 
+        // Remove os produtos antigos do pedido
+        await this.orderRepository.deleteOrderProducts(id);
+        order.product = [];
+
         // Agora vamos criar os novos produtos do pedido
         const orderProductsInstances: OrderProduct[] = order_products.map(orderProduct => {
             const product = products.find((p: Product) => p.id === orderProduct.product_id);
