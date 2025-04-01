@@ -92,34 +92,39 @@ export class UserController {
         const userName = await this.getService().resetPassword(id, oldPassword, newPassword);
 
         try {
+            // Lê o template HTML
             const htmlTemplatePath = path.join(__dirname, '../emails/resetPasswordEmail.html');
             let html = await fs.readFile(htmlTemplatePath, 'utf-8');
-
             html = html.replace('${userName}', userName);
 
+            // Configura o transporter
             const transporter = createTransporter();
-            console.log('Configuração do email:', {
-                host: process.env.HOST_EMAIL,
-                port: process.env.PORT_EMAIL,
-                user: process.env.USER_EMAIL,
-            });
 
+            // Configura as opções do email
             const mailOptions = {
-                from: process.env.USER_EMAIL,
+                from: '"Sale Point" <sale-point@example.com>',
                 to: (req.user as { email: string }).email,
-                subject: 'Alteração de Senha POS',
+                subject: 'Alteração de Senha - Sale Point',
                 html,
             };
 
+            // Tenta enviar o email
             console.log('Tentando enviar email para:', (req.user as { email: string }).email);
             await transporter.sendMail(mailOptions);
             console.log('Email enviado com sucesso!');
+
+            return res.status(200).json({ 
+                mensagem: 'Senha alterada com sucesso.',
+                emailEnviado: true
+            });
         } catch (error) {
             console.error('Erro ao enviar email:', error);
-            // Não vamos lançar o erro aqui, apenas logar
+            // Retorna sucesso mesmo se o email falhar, mas indica que o email não foi enviado
+            return res.status(200).json({ 
+                mensagem: 'Senha alterada com sucesso, mas houve um problema ao enviar o email de notificação.',
+                emailEnviado: false
+            });
         }
-
-        return res.status(200).json({ mensagem: 'Senha alterada com sucesso.' });
     }
 
     async getUserDetails(req: Request, res: Response) {
