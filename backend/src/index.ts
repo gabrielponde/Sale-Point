@@ -23,7 +23,7 @@ app.use(corsMiddleware);
 
 // Configuração do timeout
 app.use((req, res, next) => {
-    res.setTimeout(10000, () => {
+    res.setTimeout(15000, () => {
         res.status(504).json({ 
             error: 'Gateway Timeout',
             message: 'Request took too long to process'
@@ -44,31 +44,63 @@ app.get('/', (req: Request, res: Response) => {
 const dbMiddleware: RequestHandler = async (req, res, next) => {
     try {
         if (!AppDataSource.isInitialized) {
+            console.log('[Database] Attempting to initialize connection...');
             await AppDataSource.initialize();
+            console.log('[Database] Connection initialized successfully');
         }
         next();
     } catch (error) {
-        console.error('Database connection error:', error);
+        console.error('[Database] Connection error:', error);
+        if (error instanceof Error) {
+            console.error('[Database] Error details:', {
+                message: error.message,
+                name: error.name,
+                stack: error.stack
+            });
+        }
         res.status(503).json({ 
             error: 'Service temporarily unavailable',
-            message: 'Database connection failed'
+            message: 'Database connection failed',
+            details: error instanceof Error ? error.message : 'Unknown error'
         });
     }
 };
 
-// Configuração das rotas
-app.use(dbMiddleware);
-app.use(routes);
-app.use(errorMiddleware);
+// Função para tentar estabelecer a conexão inicial
+async function initializeDatabase() {
+    let retries = 5;
+    while (retries > 0) {
+        try {
+            console.log(`[Database] Attempting to connect... (${retries} retries left)`);
+            await AppDataSource.initialize();
+            console.log('[Database] Initial connection successful');
+            return true;
+        } catch (error) {
+            console.error(`[Database] Connection attempt failed (${retries} retries left):`, error);
+            retries--;
+            if (retries > 0) {
+                console.log('[Database] Waiting 2 seconds before retrying...');
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+        }
+    }
+    return false;
+}
 
-// Inicializa o banco de dados
-AppDataSource.initialize()
-    .then(() => {
-        console.log('Database initialized successfully');
-    })
-    .catch(error => {
-        console.error('Failed to initialize database:', error);
-    });
+// Inicializa o banco e configura as rotas
+initializeDatabase().then(success => {
+    if (success) {
+        console.log('[Server] Database initialized, setting up routes...');
+        app.use(dbMiddleware);
+        app.use(routes);
+        app.use(errorMiddleware);
+        console.log('[Server] Routes configured successfully');
+    } else {
+        console.error('[Server] Failed to initialize database after all retries');
+    }
+}).catch(error => {
+    console.error('[Server] Fatal error during initialization:', error);
+});
 
 // Exporta o app para o Vercel
 export default app;

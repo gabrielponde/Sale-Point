@@ -24,6 +24,9 @@ const port = parseInt(process.env.DB_PORT || '5432');
 // Define all entities
 const entities = [User, Product, Order, OrderProduct, Client, Category];
 
+// Construct the connection URL
+const connectionUrl = `postgresql://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:${port}/${process.env.DB_NAME}`;
+
 // Log connection details (remove sensitive info in production)
 console.log('Database connection details:', {
   host: process.env.DB_HOST,
@@ -47,12 +50,14 @@ export const AppDataSource = new DataSource({
     rejectUnauthorized: false
   },
   synchronize: false,
-  logging: false,
-  poolSize: 1,
-  connectTimeoutMS: 5000,
+  logging: true,
   extra: {
-    max: 1,
-    idleTimeoutMillis: 30000
+    // Configurações do pool de conexões
+    max: 1, // Máximo de conexões
+    connectionTimeoutMillis: 10000, // 10 segundos
+    query_timeout: 10000, // 10 segundos
+    statement_timeout: 10000, // 10 segundos
+    idle_in_transaction_session_timeout: 10000 // 10 segundos
   }
 });
 
