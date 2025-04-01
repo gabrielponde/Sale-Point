@@ -1,7 +1,7 @@
 {
   "name": "tye",
   "version": "1.0.0",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "scripts": {
     "dev": "nodemon --exec ts-node ./src/index.ts",
     "migration:create": "typeorm-ts-node-commonjs migration:create ./migrations/%npm_config_name%",
@@ -13,13 +13,15 @@
     "schema:log": "typeorm-ts-node-commonjs -d ./src/config/data-source.ts schema:log",
     "build": "tsc",
     "start": "node dist/index.js",
-    "vercel-build": "tsc && npm run migration:run"
+    "vercel-build": "tsc"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
-  "devDependencies": {
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.664.0",
+    "@prisma/client": "^6.5.0",
     "@types/axios": "^0.9.36",
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
@@ -29,13 +31,6 @@
     "@types/multer": "^1.4.12",
     "@types/node": "^22.13.14",
     "@types/nodemailer": "^6.4.16",
-    "nodemon": "^3.1.7",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.6.2"
-  },
-  "dependencies": {
-    "@aws-sdk/client-s3": "^3.664.0",
-    "@prisma/client": "^6.5.0",
     "@types/uuid": "^10.0.0",
     "axios": "^1.7.7",
     "bcrypt": "^5.1.1",
@@ -51,7 +46,12 @@
     "nodemailer": "^6.9.15",
     "pg": "^8.13.0",
     "reflect-metadata": "^0.2.2",
+    "ts-node": "^10.9.2",
     "typeorm": "^0.3.20",
+    "typescript": "^5.6.2",
     "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
   }
 }
