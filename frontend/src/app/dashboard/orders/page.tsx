@@ -221,9 +221,19 @@ export default function OrdersPage() {
         throw new Error(errorData.message || 'Erro ao salvar pedido')
       }
 
+      const updatedOrder = await response.json()
+      
+      // Atualiza a lista de pedidos imediatamente
+      if (selectedOrder) {
+        setOrders(orders.map(order => 
+          order.id === selectedOrder.id ? updatedOrder : order
+        ))
+      } else {
+        setOrders([...orders, updatedOrder])
+      }
+
       toast.success(`Pedido ${selectedOrder ? 'atualizado' : 'criado'} com sucesso!`)
       setIsModalOpen(false)
-      fetchOrders()
     } catch (error) {
       console.error('Erro:', error)
       toast.error(error instanceof Error ? error.message : 'Erro ao salvar pedido')
