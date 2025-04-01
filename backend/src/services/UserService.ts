@@ -14,25 +14,23 @@ export class UserService {
     async registerUser(name: string, email: string, password: string) {
         try {
             console.log('Iniciando registro de usuário:', { name, email });
-    
+            
             const existingUser = await this.userRepository.findUserByEmail(email);
-            console.log('Resultado da busca pelo email:', existingUser);
-    
             if (existingUser) {
                 console.log('Email já existe:', email);
                 throw new ApiError('O email já existe.', 400);
             }
-    
+
             console.log('Criando hash da senha');
             const hashedPassword = await bcrypt.hash(password, 10);
-    
+            
             console.log('Criando usuário no banco de dados');
             const user = await this.userRepository.createUser({ 
                 name, 
                 email, 
                 password: hashedPassword 
             });
-    
+
             console.log('Usuário registrado com sucesso:', { id: user.id, name: user.name, email: user.email });
             return user;
         } catch (error) {
@@ -43,7 +41,6 @@ export class UserService {
             throw new ApiError('Erro ao registrar usuário.', 500);
         }
     }
-    
 
     async loginUser(email: string, password: string) {
         const user = await this.userRepository.findUserByEmail(email);
