@@ -311,7 +311,7 @@ export default function OrdersPage() {
                   </button>
                 </td>
                 <td className={styles.tableCell}>
-                  {new Date(order.created_at).toLocaleString('pt-BR', {
+                  {new Date(order.updated_at || order.created_at).toLocaleString('pt-BR', {
                     day: '2-digit',
                     month: '2-digit',
                     year: 'numeric',
@@ -374,7 +374,7 @@ export default function OrdersPage() {
                   <div>
                     <p className="text-sm text-gray-500">Data</p>
                     <p className="font-medium">
-                      {new Date(selectedOrder.created_at).toLocaleString('pt-BR', {
+                      {new Date(selectedOrder.updated_at || selectedOrder.created_at).toLocaleString('pt-BR', {
                         day: '2-digit',
                         month: '2-digit',
                         year: 'numeric',
