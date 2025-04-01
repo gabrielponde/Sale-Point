@@ -23,7 +23,7 @@ app.use(corsMiddleware);
 
 // Configuração do timeout
 app.use((req, res, next) => {
-    res.setTimeout(15000, () => {
+    res.setTimeout(30000, () => {
         res.status(504).json({ 
             error: 'Gateway Timeout',
             message: 'Request took too long to process'
@@ -66,13 +66,17 @@ const dbMiddleware: RequestHandler = async (req, res, next) => {
     }
 };
 
-app.use(dbMiddleware);
-
-// Rotas
-app.use(routes);
-
-// Middleware de erro (mantém por último)
-app.use(errorMiddleware);
+// Inicializa o banco de dados antes de configurar as rotas
+AppDataSource.initialize()
+    .then(() => {
+        console.log('Database initialized successfully');
+        app.use(dbMiddleware);
+        app.use(routes);
+        app.use(errorMiddleware);
+    })
+    .catch(error => {
+        console.error('Failed to initialize database:', error);
+    });
 
 // Exporta o app para o Vercel
 export default app;

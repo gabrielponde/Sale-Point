@@ -21,27 +21,25 @@ for (const envVar of requiredEnvVars) {
 
 const port = parseInt(process.env.DB_PORT || '5432');
 
-// Debug logs (remove in production if sensitive)
-console.log('Initializing database connection with config:', {
+// Define all entities
+const entities = [User, Product, Order, OrderProduct, Client, Category];
+
+// Log connection details (remove sensitive info in production)
+console.log('Database connection details:', {
   host: process.env.DB_HOST,
   port: port,
   database: process.env.DB_NAME,
   user: process.env.DB_USER,
-  ssl: true
+  entities: entities.map(e => e.name)
 });
-
-// Define all entities
-const entities = [User, Product, Order, OrderProduct, Client, Category];
-
-// Log all entities being registered
-console.log('Registering entities:', entities.map(e => e.name));
-
-// Construct the connection URL
-const connectionUrl = `postgresql://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:${port}/${process.env.DB_NAME}`;
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  url: connectionUrl,
+  host: process.env.DB_HOST,
+  port: port,
+  username: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
   entities: entities,
   migrations: [path.join(__dirname, '../migrations/*.{js,ts}')],
   migrationsTableName: 'migrations',
@@ -50,8 +48,8 @@ export const AppDataSource = new DataSource({
   },
   synchronize: false,
   logging: true,
-  poolSize: 3,
-  connectTimeoutMS: 5000
+  poolSize: 1,
+  connectTimeoutMS: 10000
 });
 
 // Connection test function
