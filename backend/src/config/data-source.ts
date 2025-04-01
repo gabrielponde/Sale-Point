@@ -29,42 +29,60 @@ export const AppDataSource = new DataSource({
     ssl: {
         rejectUnauthorized: false
     },
-    // Configurações otimizadas para melhor TTFB
     extra: {
-        max: 20, // Máximo de conexões no pool
-        connectionTimeoutMillis: 5000,
-        idleTimeoutMillis: 30000, // Tempo que uma conexão pode ficar ociosa
+        max: 1, // Reduzido para minimizar overhead
+        connectionTimeoutMillis: 3000, // 3 segundos
+        query_timeout: 5000, // 5 segundos
+        statement_timeout: 5000, // 5 segundos
+        idle_in_transaction_session_timeout: 5000, // 5 segundos
         ssl: true
     },
-    poolSize: 20, // Tamanho do pool
-    connectTimeoutMS: 5000,
-    cache: {
-        duration: 1000 * 60 * 5 // Cache de 5 minutos
-    },
+    poolSize: 1,
+    connectTimeoutMS: 3000, // 3 segundos
+    maxQueryExecutionTime: 5000, // 5 segundos
+    cache: false, // Desativado para reduzir overhead
     logging: false
 });
 
 // Função para obter conexão existente ou criar nova
 export async function getConnection(): Promise<DataSource> {
-    if (!connectionInstance) {
-        connectionInstance = AppDataSource;
-    }
+    try {
+        if (!connectionInstance) {
+            connectionInstance = AppDataSource;
+        }
 
-    if (!connectionInstance.isInitialized) {
-        await connectionInstance.initialize();
-    }
+        if (!connectionInstance.isInitialized) {
+            await Promise.race([
+                connectionInstance.initialize(),
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Connection timeout')), 5000)
+                )
+            ]);
+        }
 
-    return connectionInstance;
+        return connectionInstance;
+    } catch (error) {
+        console.error('Connection error:', error);
+        // Limpa a instância em caso de erro
+        connectionInstance = null;
+        throw error;
+    }
 }
 
 // Função para verificar saúde da conexão
 export async function checkConnection(): Promise<boolean> {
     try {
         const connection = await getConnection();
-        await connection.query('SELECT 1'); // Query simples para testar conexão
+        // Usa promise.race para garantir timeout
+        await Promise.race([
+            connection.query('SELECT 1'),
+            new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Health check timeout')), 3000)
+            )
+        ]);
         return true;
     } catch (error) {
-        console.error('Database health check failed:', error);
+        console.error('Health check failed:', error);
         return false;
     }
 }

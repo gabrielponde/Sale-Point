@@ -20,11 +20,19 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Health check endpoint
 app.get('/health', async (_, res) => {
-    const isHealthy = await checkConnection();
-    if (isHealthy) {
-        res.json({ status: 'healthy', database: 'connected' });
-    } else {
-        res.status(503).json({ status: 'unhealthy', database: 'disconnected' });
+    try {
+        const isHealthy = await Promise.race([
+            checkConnection(),
+            new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 3000))
+        ]);
+        
+        if (isHealthy) {
+            res.json({ status: 'healthy', database: 'connected' });
+        } else {
+            res.status(503).json({ status: 'unhealthy', database: 'disconnected' });
+        }
+    } catch (error) {
+        res.status(503).json({ status: 'error', message: error.message });
     }
 });
 
@@ -36,19 +44,25 @@ app.get('/', (_, res) => {
 // Middleware otimizado para conexão com banco
 app.use(async (req, res, next) => {
     // Ignora a verificação de banco para OPTIONS e health check
-    if (req.method === 'OPTIONS' || req.path === '/health') {
+    if (req.method === 'OPTIONS' || req.path === '/health' || req.path === '/') {
         return next();
     }
 
     try {
-        // Usa o sistema de conexão otimizado
-        await getConnection();
+        // Usa o sistema de conexão otimizado com timeout
+        await Promise.race([
+            getConnection(),
+            new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Database connection timeout')), 5000)
+            )
+        ]);
         next();
     } catch (error) {
         console.error('Database connection error:', error);
         res.status(503).json({ 
             error: 'Service temporarily unavailable',
-            message: 'Database connection failed'
+            message: 'Database connection failed',
+            details: error.message
         });
     }
 });
