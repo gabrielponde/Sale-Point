@@ -2,10 +2,10 @@ import 'dotenv/config';
 import 'reflect-metadata'; 
 import express from 'express';
 import morgan from 'morgan'; 
-import { getConnection } from './config/data-source'; // Agora esta função gerencia tudo
-import routes from './routes/app-routes';
-import { errorMiddleware } from './middlewares/errorMiddleware';
-import { corsMiddleware } from './config/cors';
+import { getConnection } from '../src/config/data-source'; // Agora esta função gerencia tudo
+import routes from '../src/routes/app-routes';
+import { errorMiddleware } from '../src/middlewares/errorMiddleware';
+import { corsMiddleware } from '../src/config/cors';
 
 const app = express();
 
