@@ -11,6 +11,10 @@ import { Category } from '../models/Category';
 
 const port = parseInt(process.env.DB_PORT || '5432');
 
+// Singleton para a conexão do banco
+let connectionInstance: DataSource | null = null;
+
+// Log connection attempt
 console.log('Initializing database configuration...');
 
 export const AppDataSource = new DataSource({
@@ -21,26 +25,49 @@ export const AppDataSource = new DataSource({
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
     entities: [User, Product, Order, OrderProduct, Client, Category],
-    migrations: [path.join(__dirname, '..', '..', 'migrations', '*.{js,ts}')],
-    migrationsTableName: 'migrations',
     synchronize: false,
     ssl: {
         rejectUnauthorized: false
     },
-    // Configurações otimizadas para Supabase em ambiente serverless
+    // Configurações otimizadas para melhor TTFB
     extra: {
-        // Configuração do pool de conexões
-        poolSize: 1, // Manter apenas uma conexão por instância
-        connectionTimeoutMillis: 5000, // 5 segundos para timeout de conexão
-        idleTimeoutMillis: 5000, // Fecha conexões ociosas após 5 segundos
-        max: 1, // Máximo de conexões no pool
-        ssl: true // Força SSL
+        max: 20, // Máximo de conexões no pool
+        connectionTimeoutMillis: 5000,
+        idleTimeoutMillis: 30000, // Tempo que uma conexão pode ficar ociosa
+        ssl: true
     },
-    connectTimeoutMS: 5000, // 5 segundos para timeout geral
-    maxQueryExecutionTime: 5000, // Alerta para queries lentas
-    cache: false, // Desativa cache em ambiente serverless
-    logging: ["error", "warn", "info"], // Log mais detalhado
+    poolSize: 20, // Tamanho do pool
+    connectTimeoutMS: 5000,
+    cache: {
+        duration: 1000 * 60 * 5 // Cache de 5 minutos
+    },
+    logging: false
 });
+
+// Função para obter conexão existente ou criar nova
+export async function getConnection(): Promise<DataSource> {
+    if (!connectionInstance) {
+        connectionInstance = AppDataSource;
+    }
+
+    if (!connectionInstance.isInitialized) {
+        await connectionInstance.initialize();
+    }
+
+    return connectionInstance;
+}
+
+// Função para verificar saúde da conexão
+export async function checkConnection(): Promise<boolean> {
+    try {
+        const connection = await getConnection();
+        await connection.query('SELECT 1'); // Query simples para testar conexão
+        return true;
+    } catch (error) {
+        console.error('Database health check failed:', error);
+        return false;
+    }
+}
 
 export async function testConnection() {
   try {

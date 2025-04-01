@@ -2,7 +2,7 @@ import 'dotenv/config';
 import 'reflect-metadata'; 
 import express from 'express';
 import morgan from 'morgan'; 
-import { AppDataSource } from './config/data-source';
+import { getConnection, checkConnection } from './config/data-source';
 import routes from './routes/app-routes';
 import { errorMiddleware } from './middlewares/errorMiddleware';
 import { corsMiddleware } from './config/cors';
@@ -12,46 +12,43 @@ const app = express();
 // Middleware básico
 app.use(corsMiddleware);
 app.use(express.json());
-app.use(morgan('dev'));
+
+// Morgan apenas em desenvolvimento
+if (process.env.NODE_ENV !== 'production') {
+    app.use(morgan('dev'));
+}
+
+// Health check endpoint
+app.get('/health', async (_, res) => {
+    const isHealthy = await checkConnection();
+    if (isHealthy) {
+        res.json({ status: 'healthy', database: 'connected' });
+    } else {
+        res.status(503).json({ status: 'unhealthy', database: 'disconnected' });
+    }
+});
 
 // Rota de teste
 app.get('/', (_, res) => {
     res.json({ message: 'API is running!' });
 });
 
-// Middleware otimizado para conexão com banco em ambiente serverless
+// Middleware otimizado para conexão com banco
 app.use(async (req, res, next) => {
-    try {
-        // Se já estiver conectado, continua
-        if (AppDataSource.isInitialized) {
-            return next();
-        }
+    // Ignora a verificação de banco para OPTIONS e health check
+    if (req.method === 'OPTIONS' || req.path === '/health') {
+        return next();
+    }
 
-        console.log('Tentando conectar ao banco...');
-        const startTime = Date.now();
-        
-        // Tenta inicializar a conexão
-        await AppDataSource.initialize();
-        
-        const endTime = Date.now();
-        console.log(`Conexão estabelecida em ${endTime - startTime}ms`);
-        
+    try {
+        // Usa o sistema de conexão otimizado
+        await getConnection();
         next();
     } catch (error) {
-        console.error('Erro na conexão com o banco:', error);
-        
-        if (AppDataSource.isInitialized) {
-            try {
-                await AppDataSource.destroy();
-                console.log('Conexão antiga destruída');
-            } catch (destroyError) {
-                console.error('Erro ao destruir conexão:', destroyError);
-            }
-        }
-        
+        console.error('Database connection error:', error);
         res.status(503).json({ 
-            error: 'Database connection failed',
-            message: 'Unable to connect to the database. Please try again.'
+            error: 'Service temporarily unavailable',
+            message: 'Database connection failed'
         });
     }
 });
@@ -61,6 +58,11 @@ app.use(routes);
 
 // Middleware de erro
 app.use(errorMiddleware);
+
+// Inicializa a conexão com o banco ao iniciar o servidor
+getConnection()
+    .then(() => console.log('Initial database connection established'))
+    .catch(error => console.error('Initial database connection failed:', error));
 
 // Exporta o app para o Vercel
 export default app;
