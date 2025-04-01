@@ -68,8 +68,8 @@ async function getConnectionWithCache(): Promise<void> {
             lastConnectionTime = Date.now();
             connectionPromise = null;
         }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 8000))
-    ]);
+        new Promise<void>((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 8000))
+    ]) as Promise<void>;
 
     await connectionPromise;
 }
