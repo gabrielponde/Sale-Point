@@ -1,62 +1,47 @@
-import 'dotenv/config'
+import 'dotenv/config';
 import 'reflect-metadata'; 
 import express from 'express';
-import morgan from 'morgan'; 
 import { AppDataSource } from './config/data-source';
 import routes from './routes/app-routes';
 import { errorMiddleware } from './middlewares/errorMiddleware';
-import { corsMiddleware } from './config/cors';
 
-// Log das variáveis de ambiente (remover em produção)
-console.log('Environment variables:', {
-    DB_HOST: process.env.DB_HOST,
-    DB_PORT: process.env.DB_PORT,
-    DB_NAME: process.env.DB_NAME,
-    DB_USER: process.env.DB_USER,
-    NODE_ENV: process.env.NODE_ENV
-});
+// Initialize DB once
+AppDataSource.initialize()
+  .then(() => console.log('Database connected!'))
+  .catch((error) => {
+    console.error('Database connection failed:', error);
+    process.exit(1);
+  });
 
 const app = express();
 
-// Middleware básico
-app.use(corsMiddleware);
+// Middleware
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://sale-point-app.vercel.app');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,PATCH,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  req.method === 'OPTIONS' ? res.sendStatus(200) : next();
+});
+
 app.use(express.json());
-app.use(morgan('dev'));
 
-// Rota de teste
-app.get('/', (_, res) => {
-    res.json({ message: 'API is running!' });
+if (process.env.NODE_ENV !== 'production') {
+  const morgan = require('morgan');
+  app.use(morgan('dev'));
+}
+
+// Routes
+app.get('/', (_: express.Request, res: express.Response, next: express.NextFunction) => {
+  res.json({ message: 'API is running!' });
+  res.end();
 });
-
-// Middleware simples para garantir conexão com banco
-app.use(async (req, res, next) => {
-    try {
-        if (!AppDataSource.isInitialized) {
-            await AppDataSource.initialize();
-        }
-        next();
-    } catch (error) {
-        console.error('Database connection error:', error);
-        res.status(503).json({ 
-            error: 'Service temporarily unavailable',
-            message: 'Database connection failed'
-        });
-    }
-});
-
-// Rotas da aplicação
 app.use(routes);
-
-// Middleware de erro
 app.use(errorMiddleware);
 
-// Exporta o app para o Vercel
 export default app;
 
-// Inicia o servidor em desenvolvimento
+// Dev server
 if (process.env.NODE_ENV !== 'production') {
-    const port = process.env.PORT || 3333;
-    app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
-    });
-} 
+  const port = process.env.PORT || 3333;
+  app.listen(port, () => console.log(`Server is running on port ${port}`));
+}
