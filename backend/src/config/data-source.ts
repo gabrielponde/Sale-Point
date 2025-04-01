@@ -17,6 +17,7 @@ let connectionInstance: DataSource | null = null;
 // Log connection attempt
 console.log('Initializing database configuration...');
 
+// Configuração otimizada para ambiente serverless
 export const AppDataSource = new DataSource({
     type: 'postgres',
     host: process.env.DB_HOST,
@@ -30,21 +31,24 @@ export const AppDataSource = new DataSource({
         rejectUnauthorized: false
     },
     extra: {
-        max: 1, // Reduzido para minimizar overhead
-        connectionTimeoutMillis: 3000, // 3 segundos
-        query_timeout: 5000, // 5 segundos
-        statement_timeout: 5000, // 5 segundos
-        idle_in_transaction_session_timeout: 5000, // 5 segundos
-        ssl: true
+        max: 1,
+        connectionTimeoutMillis: 2000, // 2 segundos
+        query_timeout: 3000, // 3 segundos
+        statement_timeout: 3000,
+        idle_in_transaction_session_timeout: 3000,
+        ssl: true,
+        application_name: 'sale-point-api', // Ajuda no monitoramento
+        keepalive: true, // Mantém conexão viva
+        keepaliveInitialDelayMillis: 1000 // Começa keepalive após 1s
     },
     poolSize: 1,
-    connectTimeoutMS: 3000, // 3 segundos
-    maxQueryExecutionTime: 5000, // 5 segundos
-    cache: false, // Desativado para reduzir overhead
+    connectTimeoutMS: 2000,
+    maxQueryExecutionTime: 3000,
+    cache: false,
     logging: false
 });
 
-// Função para obter conexão existente ou criar nova
+// Função para obter conexão existente ou criar nova com retry
 export async function getConnection(): Promise<DataSource> {
     try {
         if (!connectionInstance) {
@@ -52,18 +56,26 @@ export async function getConnection(): Promise<DataSource> {
         }
 
         if (!connectionInstance.isInitialized) {
-            await Promise.race([
-                connectionInstance.initialize(),
-                new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Connection timeout')), 5000)
-                )
-            ]);
+            // Tenta inicializar com retry
+            for (let attempt = 1; attempt <= 2; attempt++) {
+                try {
+                    await Promise.race([
+                        connectionInstance.initialize(),
+                        new Promise((_, reject) => 
+                            setTimeout(() => reject(new Error('Connection timeout')), 2000)
+                        )
+                    ]);
+                    break;
+                } catch (error) {
+                    if (attempt === 2) throw error;
+                    await new Promise(resolve => setTimeout(resolve, 500)); // Espera 500ms antes do retry
+                }
+            }
         }
 
         return connectionInstance;
     } catch (error) {
         console.error('Connection error:', error);
-        // Limpa a instância em caso de erro
         connectionInstance = null;
         throw error;
     }
@@ -73,11 +85,10 @@ export async function getConnection(): Promise<DataSource> {
 export async function checkConnection(): Promise<boolean> {
     try {
         const connection = await getConnection();
-        // Usa promise.race para garantir timeout
         await Promise.race([
             connection.query('SELECT 1'),
             new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Health check timeout')), 3000)
+                setTimeout(() => reject(new Error('Health check timeout')), 2000)
             )
         ]);
         return true;

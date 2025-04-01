@@ -31,8 +31,9 @@ app.get('/health', async (_, res) => {
         } else {
             res.status(503).json({ status: 'unhealthy', database: 'disconnected' });
         }
-    } catch (error) {
-        res.status(503).json({ status: 'error', message: error.message });
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        res.status(503).json({ status: 'error', message: errorMessage });
     }
 });
 
@@ -41,28 +42,55 @@ app.get('/', (_, res) => {
     res.json({ message: 'API is running!' });
 });
 
+// Cache de conexão por 5 minutos
+let connectionPromise: Promise<void> | null = null;
+let lastConnectionTime = 0;
+const CONNECTION_TTL = 5 * 60 * 1000; // 5 minutos
+
+// Função para gerenciar conexão com cache
+async function getConnectionWithCache(): Promise<void> {
+    const now = Date.now();
+    
+    // Se tiver uma conexão em andamento, usa ela
+    if (connectionPromise) {
+        await connectionPromise;
+        return;
+    }
+    
+    // Se a última conexão foi há menos de 5 minutos, não precisa reconectar
+    if (lastConnectionTime && (now - lastConnectionTime) < CONNECTION_TTL) {
+        return;
+    }
+    
+    // Cria nova promessa de conexão
+    connectionPromise = Promise.race([
+        getConnection().then(() => {
+            lastConnectionTime = Date.now();
+            connectionPromise = null;
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 5000))
+    ]);
+
+    await connectionPromise;
+}
+
 // Middleware otimizado para conexão com banco
 app.use(async (req, res, next) => {
-    // Ignora a verificação de banco para OPTIONS e health check
+    // Ignora a verificação de banco para OPTIONS e rotas públicas
     if (req.method === 'OPTIONS' || req.path === '/health' || req.path === '/') {
         return next();
     }
 
     try {
-        // Usa o sistema de conexão otimizado com timeout
-        await Promise.race([
-            getConnection(),
-            new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Database connection timeout')), 5000)
-            )
-        ]);
+        await getConnectionWithCache();
         next();
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('Database connection error:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         res.status(503).json({ 
             error: 'Service temporarily unavailable',
             message: 'Database connection failed',
-            details: error.message
+            details: errorMessage
         });
     }
 });
@@ -73,8 +101,8 @@ app.use(routes);
 // Middleware de erro
 app.use(errorMiddleware);
 
-// Inicializa a conexão com o banco ao iniciar o servidor
-getConnection()
+// Tenta estabelecer conexão inicial
+getConnectionWithCache()
     .then(() => console.log('Initial database connection established'))
     .catch(error => console.error('Initial database connection failed:', error));
 
