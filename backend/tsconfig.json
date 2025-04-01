@@ -17,7 +17,7 @@
 		"experimentalDecorators": true,
 		"skipLibCheck": true
 	},
-	"include": ["src/**/*", "migrations"],
+	"include": ["src/**/*", "migrations", "api/index.ts"],
 	"exclude": ["node_modules", "dist"],
 	"ts-node": {
 		"files": true
