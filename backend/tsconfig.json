@@ -4,7 +4,7 @@
 		"lib": ["es5", "es6", "ES2018"],
 		"module": "commonjs",
 		"moduleResolution": "node",
-		"typeRoots": ["./src/@types"],
+		"typeRoots": ["./src/@types", "./node_modules/@types"],
 		"resolveJsonModule": true,
 		"allowJs": true,
 		"outDir": "./dist",
@@ -14,7 +14,8 @@
 		"noImplicitAny": true,
 		"strictPropertyInitialization": false,
 		"emitDecoratorMetadata": true,
-		"experimentalDecorators": true
+		"experimentalDecorators": true,
+		"skipLibCheck": true
 	},
 	"include": ["src/**/*", "migrations"],
 	"exclude": ["node_modules", "dist"],
