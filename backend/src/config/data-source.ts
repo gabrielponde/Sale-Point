@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import path from 'path';
 import { User } from '../models/User';
 import { Product } from '../models/Product';
 import { Order } from '../models/Order';
@@ -9,56 +8,20 @@ import { OrderProduct } from '../models/OrderProducts';
 import { Client } from '../models/Client';
 import { Category } from '../models/Category';
 
-// Validate required environment variables
-const requiredEnvVars = ['DB_HOST', 'DB_USER', 'DB_PASS', 'DB_NAME', 'DB_PORT'];
-
-for (const envVar of requiredEnvVars) {
-  if (!process.env[envVar]) {
-    console.error(`Missing environment variable: ${envVar}`);
-    throw new Error(`Missing environment variable: ${envVar}`);
-  }
-}
-
 const port = parseInt(process.env.DB_PORT || '5432');
 
-// Define all entities
-const entities = [User, Product, Order, OrderProduct, Client, Category];
-
-// Construct the connection URL
-const connectionUrl = `postgresql://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:${port}/${process.env.DB_NAME}`;
-
-// Log connection details (remove sensitive info in production)
-console.log('Database connection details:', {
-  host: process.env.DB_HOST,
-  port: port,
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  entities: entities.map(e => e.name)
-});
-
 export const AppDataSource = new DataSource({
-  type: 'postgres',
-  host: process.env.DB_HOST,
-  port: port,
-  username: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-  entities: entities,
-  migrations: [path.join(__dirname, '../migrations/*.{js,ts}')],
-  migrationsTableName: 'migrations',
-  ssl: {
-    rejectUnauthorized: false
-  },
-  synchronize: false,
-  logging: true,
-  extra: {
-    // Configurações do pool de conexões
-    max: 1, // Máximo de conexões
-    connectionTimeoutMillis: 10000, // 10 segundos
-    query_timeout: 10000, // 10 segundos
-    statement_timeout: 10000, // 10 segundos
-    idle_in_transaction_session_timeout: 10000 // 10 segundos
-  }
+    type: 'postgres',
+    host: process.env.DB_HOST,
+    port: port,
+    username: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+    entities: [User, Product, Order, OrderProduct, Client, Category],
+    synchronize: false,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 // Connection test function
