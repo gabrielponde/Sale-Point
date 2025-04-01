@@ -21,9 +21,9 @@ const app = express();
 // Configuração do CORS
 app.use(corsMiddleware);
 
-// Configuração do timeout
+// Configuração do timeout (30 segundos para corresponder ao Vercel)
 app.use((req, res, next) => {
-    res.setTimeout(15000, () => {
+    res.setTimeout(30000, () => {
         res.status(504).json({ 
             error: 'Gateway Timeout',
             message: 'Request took too long to process'
