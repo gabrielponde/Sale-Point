@@ -36,13 +36,12 @@ const entities = [User, Product, Order, OrderProduct, Client, Category];
 // Log all entities being registered
 console.log('Registering entities:', entities.map(e => e.name));
 
+// Construct the connection URL
+const connectionUrl = `postgresql://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:${port}/${process.env.DB_NAME}`;
+
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  host: process.env.DB_HOST,
-  port: port,
-  username: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
+  url: connectionUrl,
   entities: entities,
   migrations: [path.join(__dirname, '../migrations/*.{js,ts}')],
   migrationsTableName: 'migrations',
