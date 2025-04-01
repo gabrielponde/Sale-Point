@@ -44,7 +44,8 @@ export const AppDataSource = new DataSource({
         tcp_keepalive: true,
         tcp_keepalive_idle: 60, // Aumentado para 60 segundos
         tcp_keepalive_interval: 30, // Aumento do intervalo para 30 segundos
-        tcp_keepalive_count: 5 // Aumento do count para 5 tentativas
+        tcp_keepalive_count: 5, // Aumento do count para 5 tentativas
+        pool_mode: 'session' // Adicionando o pool_mode 'session'
     },
     poolSize: 10, // Aumentado o pool de conexões
     connectTimeoutMS: 5000, // Aumentado o tempo de conexão para 5 segundos
