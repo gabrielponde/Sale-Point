@@ -225,11 +225,30 @@ export default function OrdersPage() {
       
       // Atualiza a lista de pedidos imediatamente
       if (selectedOrder) {
+        // Mantém a estrutura correta dos dados ao atualizar
+        const formattedUpdatedOrder = {
+          ...updatedOrder,
+          client: {
+            id: updatedOrder.client_id,
+            name: clients.find(c => c.id === updatedOrder.client_id)?.name
+          },
+          total: updatedOrder.total_value
+        }
+        
         setOrders(orders.map(order => 
-          order.id === selectedOrder.id ? updatedOrder : order
+          order.id === selectedOrder.id ? formattedUpdatedOrder : order
         ))
       } else {
-        setOrders([...orders, updatedOrder])
+        // Formata o novo pedido antes de adicionar
+        const formattedNewOrder = {
+          ...updatedOrder,
+          client: {
+            id: updatedOrder.client_id,
+            name: clients.find(c => c.id === updatedOrder.client_id)?.name
+          },
+          total: updatedOrder.total_value
+        }
+        setOrders([...orders, formattedNewOrder])
       }
 
       toast.success(`Pedido ${selectedOrder ? 'atualizado' : 'criado'} com sucesso!`)
