@@ -66,41 +66,28 @@ const dbMiddleware: RequestHandler = async (req, res, next) => {
     }
 };
 
-// Função para tentar estabelecer a conexão inicial
-async function initializeDatabase() {
-    let retries = 5;
-    while (retries > 0) {
-        try {
-            console.log(`[Database] Attempting to connect... (${retries} retries left)`);
-            await AppDataSource.initialize();
-            console.log('[Database] Initial connection successful');
-            return true;
-        } catch (error) {
-            console.error(`[Database] Connection attempt failed (${retries} retries left):`, error);
-            retries--;
-            if (retries > 0) {
-                console.log('[Database] Waiting 2 seconds before retrying...');
-                await new Promise(resolve => setTimeout(resolve, 2000));
-            }
-        }
-    }
-    return false;
-}
+// Configuração das rotas
+app.use(routes);
 
-// Inicializa o banco e configura as rotas
-initializeDatabase().then(success => {
-    if (success) {
-        console.log('[Server] Database initialized, setting up routes...');
-        app.use(dbMiddleware);
-        app.use(routes);
-        app.use(errorMiddleware);
-        console.log('[Server] Routes configured successfully');
-    } else {
-        console.error('[Server] Failed to initialize database after all retries');
-    }
-}).catch(error => {
-    console.error('[Server] Fatal error during initialization:', error);
-});
+// Middleware de banco de dados apenas para rotas que precisam dele
+app.use('/user', dbMiddleware);           // Todas as rotas de usuário precisam do banco
+app.use('/product', dbMiddleware);        // Todas as rotas de produto precisam do banco
+app.use('/client', dbMiddleware);         // Todas as rotas de cliente precisam do banco
+app.use('/order', dbMiddleware);          // Todas as rotas de pedido precisam do banco
+app.use('/categories', dbMiddleware);      // Todas as rotas de categoria precisam do banco
+app.use('/dashboard', dbMiddleware);       // Dashboard precisa do banco para estatísticas
+
+// Middleware de erro
+app.use(errorMiddleware);
+
+// Inicializa o banco de dados
+AppDataSource.initialize()
+    .then(() => {
+        console.log('[Database] Initial connection successful');
+    })
+    .catch(error => {
+        console.error('[Database] Initial connection failed:', error);
+    });
 
 // Exporta o app para o Vercel
 export default app;
