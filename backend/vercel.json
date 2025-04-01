@@ -23,7 +23,7 @@
     }
   ],
   "functions": {
-    "dist/index.js": {
+    "src/index.ts": {
       "maxDuration": 30,
       "memory": 1024
     }
