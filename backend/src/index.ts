@@ -35,7 +35,7 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Rota de teste
+// Rota de teste (não precisa de banco de dados)
 app.get('/', (req: Request, res: Response) => {
     res.json({ message: 'API is running!' });
 });
@@ -47,6 +47,8 @@ const dbMiddleware: RequestHandler = async (req, res, next) => {
             console.log('[Database] Attempting to initialize connection...');
             await AppDataSource.initialize();
             console.log('[Database] Connection initialized successfully');
+            console.log('[Database] Registered entities:', 
+                AppDataSource.entityMetadatas.map(m => m.name));
         }
         next();
     } catch (error) {
@@ -66,10 +68,7 @@ const dbMiddleware: RequestHandler = async (req, res, next) => {
     }
 };
 
-// Configuração das rotas
-app.use(routes);
-
-// Middleware de banco de dados apenas para rotas que precisam dele
+// Aplicar middleware de banco de dados para todas as rotas que precisam dele
 app.use('/user', dbMiddleware);           // Todas as rotas de usuário precisam do banco
 app.use('/product', dbMiddleware);        // Todas as rotas de produto precisam do banco
 app.use('/client', dbMiddleware);         // Todas as rotas de cliente precisam do banco
@@ -77,16 +76,28 @@ app.use('/order', dbMiddleware);          // Todas as rotas de pedido precisam d
 app.use('/categories', dbMiddleware);      // Todas as rotas de categoria precisam do banco
 app.use('/dashboard', dbMiddleware);       // Dashboard precisa do banco para estatísticas
 
+// Configuração das rotas DEPOIS do middleware de banco de dados
+app.use(routes);
+
 // Middleware de erro
 app.use(errorMiddleware);
 
-// Inicializa o banco de dados
+// Inicializa o banco de dados na inicialização do servidor
 AppDataSource.initialize()
     .then(() => {
         console.log('[Database] Initial connection successful');
+        console.log('[Database] Registered entities:', 
+            AppDataSource.entityMetadatas.map(m => m.name));
     })
     .catch(error => {
         console.error('[Database] Initial connection failed:', error);
+        if (error instanceof Error) {
+            console.error('[Database] Error details:', {
+                message: error.message,
+                name: error.name,
+                stack: error.stack
+            });
+        }
     });
 
 // Exporta o app para o Vercel
