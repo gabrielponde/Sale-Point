@@ -27,16 +27,16 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_NAME,
     entities: [User, Product, Order, OrderProduct, Client, Category],
     synchronize: false,
-    ssl: {
-        rejectUnauthorized: false
-    },
+    ssl: true,
     extra: {
         max: 1,
         connectionTimeoutMillis: 2000, // 2 segundos
         query_timeout: 3000, // 3 segundos
         statement_timeout: 3000,
         idle_in_transaction_session_timeout: 3000,
-        ssl: true,
+        ssl: {
+            rejectUnauthorized: false
+        },
         application_name: 'sale-point-api', // Ajuda no monitoramento
         keepalive: true, // Mantém conexão viva
         keepaliveInitialDelayMillis: 500, // Reduzido para 500ms

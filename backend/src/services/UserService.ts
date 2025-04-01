@@ -3,19 +3,26 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 import { ApiError } from '../helpers/api-error';
+import { AppDataSource } from '../config/data-source';
 
 export class UserService {
-    private readonly userRepository: UserRepository;
+    private userRepository: UserRepository | null = null;
 
-    constructor() {
-        this.userRepository = new UserRepository();
+    private getRepository(): UserRepository {
+        if (!this.userRepository) {
+            if (!AppDataSource.isInitialized) {
+                throw new Error('Database connection not initialized');
+            }
+            this.userRepository = new UserRepository();
+        }
+        return this.userRepository;
     }
 
     async registerUser(name: string, email: string, password: string) {
         try {
             console.log('Iniciando registro de usuário:', { name, email });
             
-            const existingUser = await this.userRepository.findUserByEmail(email);
+            const existingUser = await this.getRepository().findUserByEmail(email);
             if (existingUser) {
                 console.log('Email já existe:', email);
                 throw new ApiError('O email já existe.', 400);
@@ -25,7 +32,7 @@ export class UserService {
             const hashedPassword = await bcrypt.hash(password, 10);
             
             console.log('Criando usuário no banco de dados');
-            const user = await this.userRepository.createUser({ 
+            const user = await this.getRepository().createUser({ 
                 name, 
                 email, 
                 password: hashedPassword 
@@ -35,6 +42,13 @@ export class UserService {
             return user;
         } catch (error) {
             console.error('Erro no serviço de registro:', error);
+            if (error instanceof Error) {
+                console.error('Detalhes do erro:', {
+                    message: error.message,
+                    stack: error.stack,
+                    name: error.name
+                });
+            }
             if (error instanceof ApiError) {
                 throw error;
             }
@@ -43,7 +57,7 @@ export class UserService {
     }
 
     async loginUser(email: string, password: string) {
-        const user = await this.userRepository.findUserByEmail(email);
+        const user = await this.getRepository().findUserByEmail(email);
         if (!user) {
             throw new ApiError('O usuário não foi encontrado.', 404);
         }
@@ -59,7 +73,7 @@ export class UserService {
     }
 
     async resetPassword(id: number, oldPassword: string, newPassword: string) {
-        const user = await this.userRepository.findUserById(id);
+        const user = await this.getRepository().findUserById(id);
         if (!user) {
             throw new ApiError('Usuário não encontrado.', 404);
         }
@@ -70,17 +84,17 @@ export class UserService {
         }
 
         const newHashedPassword = await bcrypt.hash(newPassword, 10);
-        await this.userRepository.updateUserPassword(user.id, newHashedPassword);
+        await this.getRepository().updateUserPassword(user.id, newHashedPassword);
         return user.name;
     }
 
     async editUser(id: number, name: string, email: string) {
-        const existingEmail = await this.userRepository.findUserByEmail(email);
+        const existingEmail = await this.getRepository().findUserByEmail(email);
         if (existingEmail && existingEmail.id !== id) {
             throw new ApiError('O e-mail informado já está sendo utilizado por outro usuário.', 400);
         }
 
-        const user = await this.userRepository.findUserById(id);
+        const user = await this.getRepository().findUserById(id);
         if (!user) {
             throw new ApiError('Usuário não encontrado.', 404);
         }
@@ -88,6 +102,6 @@ export class UserService {
         user.name = name;
         user.email = email;
 
-        await this.userRepository.updateUser(user);
+        await this.getRepository().updateUser(user);
     }
 }

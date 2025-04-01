@@ -3,21 +3,34 @@ import { User } from '../models/User';
 import { Repository } from 'typeorm';
 
 export class UserRepository {
-    private repository: Repository<User>;
+    private repository: Repository<User> | null = null;
 
-    constructor() {
-        this.repository = AppDataSource.getRepository(User);
+    private getRepository(): Repository<User> {
+        if (!this.repository) {
+            if (!AppDataSource.isInitialized) {
+                throw new Error('Database connection not initialized');
+            }
+            this.repository = AppDataSource.getRepository(User);
+        }
+        return this.repository;
     }
 
     async createUser(data: Partial<User>): Promise<User> {
         try {
             console.log('Tentando criar usuário com dados:', { ...data, password: '[REDACTED]' });
-            const user = this.repository.create(data);
-            const savedUser = await this.repository.save(user);
+            const user = this.getRepository().create(data);
+            const savedUser = await this.getRepository().save(user);
             console.log('Usuário criado com sucesso:', { id: savedUser.id, name: savedUser.name, email: savedUser.email });
             return savedUser;
         } catch (error) {
             console.error('Erro ao criar usuário:', error);
+            if (error instanceof Error) {
+                console.error('Detalhes do erro:', {
+                    message: error.message,
+                    stack: error.stack,
+                    name: error.name
+                });
+            }
             throw error;
         }
     }
@@ -25,7 +38,7 @@ export class UserRepository {
     async findUserByEmail(email: string): Promise<User | null> {
         try {
             console.log('Buscando usuário por email:', email);
-            const user = await this.repository.findOne({ where: { email } });
+            const user = await this.getRepository().findOne({ where: { email } });
             console.log('Resultado da busca:', user ? 'Usuário encontrado' : 'Usuário não encontrado');
             return user || null;
         } catch (error) {
@@ -37,7 +50,7 @@ export class UserRepository {
     async updateUserPassword(id: number, newPassword: string): Promise<void> {
         try {
             console.log('Atualizando senha do usuário:', id);
-            await this.repository.update(id, { password: newPassword });
+            await this.getRepository().update(id, { password: newPassword });
             console.log('Senha atualizada com sucesso');
         } catch (error) {
             console.error('Erro ao atualizar senha:', error);
@@ -48,7 +61,7 @@ export class UserRepository {
     async findUserById(id: number): Promise<User | null> {
         try {
             console.log('Buscando usuário por ID:', id);
-            const user = await this.repository.findOne({ where: { id } });
+            const user = await this.getRepository().findOne({ where: { id } });
             console.log('Resultado da busca:', user ? 'Usuário encontrado' : 'Usuário não encontrado');
             return user || null;
         } catch (error) {
@@ -60,7 +73,7 @@ export class UserRepository {
     async updateUser(user: User): Promise<void> {
         try {
             console.log('Atualizando usuário:', { id: user.id, name: user.name, email: user.email });
-            await this.repository.save(user);
+            await this.getRepository().save(user);
             console.log('Usuário atualizado com sucesso');
         } catch (error) {
             console.error('Erro ao atualizar usuário:', error);

@@ -6,12 +6,19 @@ import { ApiError } from '../helpers/api-error';
 import jwt from 'jsonwebtoken';
 import path from 'path';
 import { promises as fs } from 'fs';
+import { AppDataSource } from '../config/data-source';
 
 export class UserController {
-    private readonly userService: UserService;
+    private userService: UserService | null = null;
 
-    constructor() {
-        this.userService = new UserService();
+    private getService(): UserService {
+        if (!this.userService) {
+            if (!AppDataSource.isInitialized) {
+                throw new Error('Database connection not initialized');
+            }
+            this.userService = new UserService();
+        }
+        return this.userService;
     }
 
     async register(req: Request, res: Response) {
@@ -27,7 +34,7 @@ export class UserController {
             const { name, email, password } = req.body;
             console.log('Dados validados, tentando registrar usuário');
         
-            const user = await this.userService.registerUser(name, email, password);
+            const user = await this.getService().registerUser(name, email, password);
             console.log('Usuário registrado com sucesso');
             
             return res.status(201).json({
@@ -37,6 +44,13 @@ export class UserController {
             });
         } catch (error) {
             console.error('Erro no controller de registro:', error);
+            if (error instanceof Error) {
+                console.error('Detalhes do erro:', {
+                    message: error.message,
+                    stack: error.stack,
+                    name: error.name
+                });
+            }
             if (error instanceof ApiError) {
                 return res.status(error.statusCode).json({ error: error.message });
             }
@@ -51,7 +65,7 @@ export class UserController {
         }
 
         const { email, password } = req.body;
-        const { user } = await this.userService.loginUser(email, password);
+        const { user } = await this.getService().loginUser(email, password);
 
         const secret = process.env.JWT_SECRET as string;
         const token = jwt.sign({ id: user.id }, secret, { expiresIn: '8h' });
@@ -75,7 +89,7 @@ export class UserController {
 
         const { oldPassword, newPassword } = req.body;
         const { id } = req.user as { id: number };
-        const userName = await this.userService.resetPassword(id, oldPassword, newPassword);
+        const userName = await this.getService().resetPassword(id, oldPassword, newPassword);
 
         try {
             const htmlTemplatePath = path.join(__dirname, '../emails/resetPasswordEmail.html');
@@ -126,7 +140,7 @@ export class UserController {
         const { name, email } = req.body;
         const { id } = req.user as { id: number };
 
-        await this.userService.editUser(id, name, email);
+        await this.getService().editUser(id, name, email);
         return res.status(204).send();
     }
 }
