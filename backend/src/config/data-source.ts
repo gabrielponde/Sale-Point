@@ -11,7 +11,6 @@ import { Category } from '../models/Category';
 
 const port = parseInt(process.env.DB_PORT || '5432');
 
-// Log connection attempt
 console.log('Initializing database configuration...');
 
 export const AppDataSource = new DataSource({

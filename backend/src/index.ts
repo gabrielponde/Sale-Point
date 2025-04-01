@@ -40,7 +40,6 @@ app.use(async (req, res, next) => {
     } catch (error) {
         console.error('Erro na conexão com o banco:', error);
         
-        // Se a conexão já existir mas estiver com problema, tenta destruir
         if (AppDataSource.isInitialized) {
             try {
                 await AppDataSource.destroy();
