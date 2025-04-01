@@ -46,13 +46,45 @@ export class OrderRepository {
     }
 
     async findOrderById(id: number): Promise<Order | null> {
-        return this.dataSource.getRepository(Order)
+        const order = await this.dataSource.getRepository(Order)
             .createQueryBuilder('order')
             .leftJoinAndSelect('order.client', 'client')
             .leftJoinAndSelect('order.product', 'productOrder')
             .leftJoinAndSelect('productOrder.product', 'product')
             .where('order.id = :id', { id })
             .getOne();
+
+        if (!order) {
+            return null;
+        }
+
+        // Garante que o cliente está carregado
+        if (!order.client) {
+            const clientId = (order as any).client_id;
+            if (clientId) {
+                const client = await this.findClientById(clientId);
+                if (client) {
+                    order.client = client;
+                }
+            }
+        }
+
+        // Garante que o cliente está presente na resposta
+        if (!order.client) {
+            console.error(`Cliente não encontrado para o pedido ${id}`);
+            // Tenta buscar o cliente novamente usando uma query mais específica
+            const orderWithClient = await this.dataSource.getRepository(Order)
+                .createQueryBuilder('order')
+                .leftJoinAndSelect('order.client', 'client')
+                .where('order.id = :id', { id })
+                .getOne();
+            
+            if (orderWithClient?.client) {
+                order.client = orderWithClient.client;
+            }
+        }
+
+        return order;
     }
 
     async deleteOrder(id: number): Promise<void> {
@@ -75,11 +107,16 @@ export class OrderRepository {
     }
 
     async deleteOrderProducts(orderId: number): Promise<void> {
-        await this.dataSource
-            .createQueryBuilder()
-            .delete()
-            .from(OrderProduct)
-            .where('order_id = :orderId', { orderId })
-            .execute();
+        try {
+            await this.dataSource
+                .createQueryBuilder()
+                .delete()
+                .from(OrderProduct)
+                .where('order_id = :orderId', { orderId })
+                .execute();
+        } catch (error) {
+            console.error('Erro ao deletar produtos do pedido:', error);
+            throw new Error('Erro ao remover produtos do pedido');
+        }
     }
 }
