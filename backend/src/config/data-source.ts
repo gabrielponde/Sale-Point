@@ -47,9 +47,13 @@ export const AppDataSource = new DataSource({
     rejectUnauthorized: false
   },
   synchronize: false,
-  logging: true,
+  logging: false,
   poolSize: 1,
-  connectTimeoutMS: 10000
+  connectTimeoutMS: 5000,
+  extra: {
+    max: 1,
+    idleTimeoutMillis: 30000
+  }
 });
 
 // Connection test function
