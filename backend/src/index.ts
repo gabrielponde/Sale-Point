@@ -66,13 +66,15 @@ const dbMiddleware: RequestHandler = async (req, res, next) => {
     }
 };
 
-// Inicializa o banco de dados antes de configurar as rotas
+// Configuração das rotas
+app.use(dbMiddleware);
+app.use(routes);
+app.use(errorMiddleware);
+
+// Inicializa o banco de dados
 AppDataSource.initialize()
     .then(() => {
         console.log('Database initialized successfully');
-        app.use(dbMiddleware);
-        app.use(routes);
-        app.use(errorMiddleware);
     })
     .catch(error => {
         console.error('Failed to initialize database:', error);
